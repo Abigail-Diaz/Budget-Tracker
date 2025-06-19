@@ -1,0 +1,19 @@
+.balanceCard {
+  background: rgb(230, 230, 248);
+  border-radius: 1rem;
+  padding: 1rem;
+  width: 30%;
+  font-family: Arial, sans-serif;
+  color: #3b3a8e;
+  box-shadow: 0 4px 12px rgba(59, 58, 142, 0.15);
+  text-align: left;
+}
+
+.balanceCard h3 {
+  margin-bottom: 0.5rem;
+}
+
+.balanceCard p {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
