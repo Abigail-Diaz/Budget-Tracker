@@ -1,0 +1,51 @@
+.container {
+  margin-top: 0px;
+  position: relative;
+  z-index: 5;
+  width: 70%;
+  background: rgb(255, 255, 255);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 12px rgba(124, 34, 160, 0.57);
+  padding: 1.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4rem;
+}
+
+.heading {
+  margin-bottom: 1.0rem;
+  text-align: left;
+  color: #333;
+}
+
+.categoryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+}
+
+.categoryIcon {
+  width: 28px;
+  height: 28px;
+  margin-right: 0.75rem;
+}
+
+.categoryTitle {
+  margin: 0;
+  color: #020003;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.categoryAmount {
+  font-weight: bold;
+  color: #5a2091;
+  font-size: 1rem;
+}
