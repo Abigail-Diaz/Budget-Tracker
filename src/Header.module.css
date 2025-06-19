@@ -1,0 +1,26 @@
+/* PageBackground.module.css */
+.headerBackground {
+  font-weight: 100;
+  text-align:left;
+  padding-left: 2rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10%;
+  background-color: #6e49a8;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  z-index: 0;
+  font-family: "Manrope", "Inter", sans-serif;
+  font-weight: 100;
+  font-size: 1.3rem;
+  color: #1a1a1a;
+}
+
+.header {
+  position: relative;
+  color: white;
+  padding-top: 20px;
+}
+
