@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 
 const COLORS = [
-  '#6a0dad', // rich purple
-  '#9b59b6', // light purple
-  '#b39ddb', // lavender
-  '#d1c4e9', // very light purple
-  '#7f8c8d', // mid gray
-  '#95a5a6', // light gray
-  '#bdc3c7', // softer gray
-  '#dfe6e9', // very soft gray
+    '#6a0dad', // rich purple
+    '#9b59b6', // light purple
+    '#b39ddb', // lavender
+    '#d1c4e9', // very light purple
+    '#7f8c8d', // mid gray
+    '#95a5a6', // light gray
+    '#bdc3c7', // softer gray
+    '#dfe6e9', // very soft gray
 ];
 
 const currentDate = new Date();
@@ -28,17 +27,19 @@ function PieChartExpense({ expensesByCategory }) {
 
     return (
         <div style={{
+
             width: '100%',
             maxWidth: '600px',
-            margin: '2rem auto',
-            backgroundColor: '#fff',
             padding: '1rem',
             borderRadius: '1rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            backgroundColor: '#fff',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
         }}>
             <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>{currentMonthLabel}'s Expenses</h3>
             {/* Pie chart with categories and corresponding amounts */}
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                     <Pie
                         data={categoryData}

@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
+import Header from './Header.jsx'
+import Navigation from './Navigation.jsx'
 import Dashboard from './Pages/DashboardPage.jsx'
 import Transactions from './Pages/Transactions.jsx'
+import Budget from './Pages/Budget.jsx'
 
 import { getMonth, getYear } from 'date-fns';
 
@@ -56,35 +59,35 @@ function App() {
 
   // Obtain the total income for the current month
   //Note: Income is in the transactions list
- 
-    useEffect(() => {
-      if (!transactions || transactions.length === 0) {
-        setIncomeTotal(0);
-        return;
+
+  useEffect(() => {
+    if (!transactions || transactions.length === 0) {
+      setIncomeTotal(0);
+      return;
+    }
+    // Get the current month and year
+    const now = new Date();
+    const currentMonth = getMonth(now);
+    const currentYear = getYear(now);
+
+    // Calculate total income for the current month
+    const totalIncome = transactions.reduce((acc, txn) => {
+      const dateStr = txn.Date || txn.date;
+      const amount = Number(txn.Amount || txn.amount || 0);
+      if (amount <= 0) return acc;
+
+      const dateObj = new Date(dateStr);
+      if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
+        return acc + amount;
       }
-      // Get the current month and year
-      const now = new Date();
-      const currentMonth = getMonth(now);
-      const currentYear = getYear(now);
+      return acc;
+    }, 0);
 
-      // Calculate total income for the current month
-      const totalIncome = transactions.reduce((acc, txn) => {
-        const dateStr = txn.Date || txn.date;
-        const amount = Number(txn.Amount || txn.amount || 0);
-        if (amount <= 0) return acc;
+    setIncomeTotal(totalIncome);
+  }, [transactions]);
 
-        const dateObj = new Date(dateStr);
-        if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
-          return acc + amount;
-        }
-        return acc;
-      }, 0);
-
-      setIncomeTotal(totalIncome);
-    }, [transactions]);
-
-    // Obtain the total balance in the account
-    useEffect(() => {
+  // Obtain the total balance in the account
+  useEffect(() => {
     if (!transactions || transactions.length === 0) {
       setBalance(0);
       return;
@@ -101,45 +104,50 @@ function App() {
 
   // Calculate amounts by category
   useEffect(() => {
-  
-  async function fetchExpenses() {
-    try {
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
 
-      const totals = transactions.reduce((acc, txn) => {
-        const amount = Number(txn.Amount || txn.amount || 0);
-        const category = txn.Category || txn.category || 'Other';
+    async function fetchExpenses() {
+      try {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
-        const txnDate = new Date(txn.Date || txn.date);
-        const txnMonth = txnDate.getMonth();
-        const txnYear = txnDate.getFullYear();
-        
-        // Calculate based on current month and year
-        if (amount < 0 && txnMonth === currentMonth && txnYear === currentYear) {
-          acc[category] = (acc[category] || 0) + Math.abs(amount);
-        }
+        const totals = transactions.reduce((acc, txn) => {
+          const amount = Number(txn.Amount || txn.amount || 0);
+          const category = txn.Category || txn.category || 'Other';
 
-        return acc;
-      }, {});
+          const txnDate = new Date(txn.Date || txn.date);
+          const txnMonth = txnDate.getMonth();
+          const txnYear = txnDate.getFullYear();
 
-      setExpensesByCategory(totals);
-    } catch (err) {
-      console.error('Error loading recent expenses:', err);
+          // Calculate based on current month and year
+          if (amount < 0 && txnMonth === currentMonth && txnYear === currentYear) {
+            acc[category] = (acc[category] || 0) + Math.abs(amount);
+          }
+
+          return acc;
+        }, {});
+
+        setExpensesByCategory(totals);
+      } catch (err) {
+        console.error('Error loading recent expenses:', err);
+      }
     }
-  }
 
-  fetchExpenses();
-}, [transactions]);
-  
+    fetchExpenses();
+  }, [transactions]);
+
 
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard header={header} transactions={transactions} 
-      incomeTotal = {incomeTotal} balance = {balance} expensesByCategory = {expensesByCategory}/>} />
-      <Route path="/transactions" element={<Transactions expensesByCategory = {expensesByCategory} />} />
-    </Routes>
+    <>
+      <Header header = {header} />
+      <Navigation setHeader={setHeader}/>
+      <Routes>
+        <Route path="/" element={<Dashboard transactions={transactions}
+          incomeTotal={incomeTotal} balance={balance} expensesByCategory={expensesByCategory} />} />
+        <Route path="/transactions" element={<Transactions expensesByCategory={expensesByCategory} transactions={transactions}/>} />
+        <Route path = "/budget" element={<Budget expensesByCategory={expensesByCategory}/>}/>
+      </Routes></>
+
   )
 }
 
