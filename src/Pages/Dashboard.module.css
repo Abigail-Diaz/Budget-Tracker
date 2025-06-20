@@ -8,3 +8,16 @@
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
 }
+.dashboardWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cardRow {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 2rem;
+}
