@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import PageBackground from './PageBackground.jsx'
+
 import Dashboard from './Pages/DashboardPage.jsx'
-import MonthlyExpensesChart from './MonthlyExpensesChart.jsx'
-import BalanceSummary from './BalanceSummary.jsx'
-import RecentExpensesList from './RecentExpensesList.jsx'
+import Transactions from './Pages/Transactions.jsx'
+
+import { getMonth, getYear } from 'date-fns';
+
+import { Routes, Route, Router } from 'react-router-dom'
+
 
 function App() {
   const [header, setHeader] = useState('Dashboard')
   const [transactions, setTransactions] = useState([])
+  const [incomeTotal, setIncomeTotal] = useState(0);
+  const [balance, setBalance] = useState(0);
+  const [expensesByCategory, setExpensesByCategory] = useState({});
 
   // Airtable API constants
   const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`
@@ -37,21 +43,103 @@ function App() {
         if (!resp.ok) throw new Error(resp.statusText)
         const { records } = await resp.json()
 
-        // Optional: Extract only the `fields` from each record
         const simplified = records.map((record) => record.fields)
 
         setTransactions(simplified)
-        console.log('Fetched transactions:', simplified)
       } catch (error) {
-        console.error('Error fetching Airtable data:', error)
       }
     }
 
     fetchTodos()
   }, [url, token])
 
+
+  // Obtain the total income for the current month
+  //Note: Income is in the transactions list
+ 
+    useEffect(() => {
+      if (!transactions || transactions.length === 0) {
+        setIncomeTotal(0);
+        return;
+      }
+      // Get the current month and year
+      const now = new Date();
+      const currentMonth = getMonth(now);
+      const currentYear = getYear(now);
+
+      // Calculate total income for the current month
+      const totalIncome = transactions.reduce((acc, txn) => {
+        const dateStr = txn.Date || txn.date;
+        const amount = Number(txn.Amount || txn.amount || 0);
+        if (amount <= 0) return acc;
+
+        const dateObj = new Date(dateStr);
+        if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
+          return acc + amount;
+        }
+        return acc;
+      }, 0);
+
+      setIncomeTotal(totalIncome);
+    }, [transactions]);
+
+    // Obtain the total balance in the account
+    useEffect(() => {
+    if (!transactions || transactions.length === 0) {
+      setBalance(0);
+      return;
+    }
+
+    // Calculate total balance by summing all amounts
+    const totalBalance = transactions.reduce((acc, txn) => {
+      const amount = Number(txn.Amount || txn.amount || 0);
+      return acc + amount;
+    }, 0);
+
+    setBalance(totalBalance);
+  }, [transactions]);
+
+  // Calculate amounts by category
+  useEffect(() => {
+  
+  async function fetchExpenses() {
+    try {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      const totals = transactions.reduce((acc, txn) => {
+        const amount = Number(txn.Amount || txn.amount || 0);
+        const category = txn.Category || txn.category || 'Other';
+
+        const txnDate = new Date(txn.Date || txn.date);
+        const txnMonth = txnDate.getMonth();
+        const txnYear = txnDate.getFullYear();
+        
+        // Calculate based on current month and year
+        if (amount < 0 && txnMonth === currentMonth && txnYear === currentYear) {
+          acc[category] = (acc[category] || 0) + Math.abs(amount);
+        }
+
+        return acc;
+      }, {});
+
+      setExpensesByCategory(totals);
+    } catch (err) {
+      console.error('Error loading recent expenses:', err);
+    }
+  }
+
+  fetchExpenses();
+}, [transactions]);
+  
+
   return (
-      <Dashboard header = {header} transactions = {transactions}/>
+    <Routes>
+      <Route path="/" element={<Dashboard header={header} transactions={transactions} 
+      incomeTotal = {incomeTotal} balance = {balance} expensesByCategory = {expensesByCategory}/>} />
+      <Route path="/transactions" element={<Transactions expensesByCategory = {expensesByCategory} />} />
+    </Routes>
   )
 }
 
