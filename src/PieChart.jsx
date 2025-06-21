@@ -1,66 +1,41 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { format } from 'date-fns';
 
-const COLORS = [
-    '#6a0dad', // rich purple
-    '#9b59b6', // light purple
-    '#b39ddb', // lavender
-    '#d1c4e9', // very light purple
-    '#7f8c8d', // mid gray
-    '#95a5a6', // light gray
-    '#bdc3c7', // softer gray
-    '#dfe6e9', // very soft gray
-];
+const colors = ['#6a0dad', '#9b59b6', '#b39ddb', '#d1c4e9'];
 
-const currentDate = new Date();
-const currentMonthLabel = format(currentDate, 'MMMM');
+// Pie chart to display amounts 
+function PieChartExpense({ dataObject, label }) {
+  if (!dataObject) return null;
 
-// Component to display a pie chart based on the total expense for the current month 
-function PieChartExpense({ expensesByCategory }) {
-    if (!expensesByCategory || typeof expensesByCategory !== 'object') return null;
+  // make dataObject into PieChart-compatible format
+  const data = Object.entries(dataObject).map(([name, value]) => ({
+    name,
+    value: Math.abs(value),
+  }));
 
-    // convert the passed array to an array of objects containing name and value pairs
-    const categoryData = Object.entries(expensesByCategory).map(([name, value]) => ({
-        name,
-        value: parseFloat(value.toFixed(2)),
-    }));
-
-    return (
-        <div style={{
-
-            width: '100%',
-            maxWidth: '600px',
-            padding: '1rem',
-            borderRadius: '1rem',
-            backgroundColor: '#fff',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-        }}>
-            <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>{currentMonthLabel}'s Expenses</h3>
-            {/* Pie chart with categories and corresponding amounts */}
-            <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie
-                        data={categoryData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        label
-                    >
-                        {/*Fill in the chart based on color palette */}
-                        {categoryData.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
-                    <Legend />
-                </PieChart>
-            </ResponsiveContainer>
-        </div>
-    );
+  return (
+    <div style={{ width: '100%', maxWidth: 600, margin: 'auto' }}>
+      <h3 style={{ textAlign: 'center' }}>{label}</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            label
+          >
+            {data.map((_, index) => (
+              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+            ))}
+          </Pie>
+          <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }
 
 export default PieChartExpense;
