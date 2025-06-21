@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import './App.css'
 
 import Header from './Header.jsx'
@@ -6,21 +6,24 @@ import Navigation from './Navigation.jsx'
 import Dashboard from './Pages/DashboardPage.jsx'
 import Transactions from './Pages/Transactions.jsx'
 import Budget from './Pages/Budget.jsx'
+import EditBudget from './Pages/EditBudget.jsx'
 
-import { getMonth, getYear } from 'date-fns';
-
-import { Routes, Route, Router } from 'react-router-dom'
-
+import { format, subMonths, getMonth, getYear } from 'date-fns';
+import { Routes, Route } from 'react-router-dom'
 
 function App() {
   const [header, setHeader] = useState('Dashboard')
   const [transactions, setTransactions] = useState([])
+  const [budgetCategories, setBudgetcategories] = useState([]);
   const [incomeTotal, setIncomeTotal] = useState(0);
   const [balance, setBalance] = useState(0);
   const [expensesByCategory, setExpensesByCategory] = useState({});
+  const [monthlyData, setMonthlyData] = useState({});
 
   // Airtable API constants
+  const baseId = import.meta.env.VITE_BASE_ID;
   const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`
+  const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${import.meta.env.VITE_TABLE_CATEGORIES}`;
   const token = `Bearer ${import.meta.env.VITE_PAT}`
 
   // Helper function to create fetch options
@@ -56,10 +59,87 @@ function App() {
     fetchTodos()
   }, [url, token])
 
+  // Fetch budget categories from Airtable on mount
+  useEffect(() => {
+    async function fetchTodos() {
+      try {
+        const resp = await fetch(categoriesUrl, createOptions('GET'))
+        if (!resp.ok) throw new Error(resp.statusText)
+        const { records } = await resp.json()
 
-  // Obtain the total income for the current month
+        const simplified = records.map((record) => record.fields)
+
+        setBudgetcategories(simplified)
+      } catch (error) {
+      }
+    }
+
+    fetchTodos()
+  }, [url, token])
+
+  console.log(transactions)
+  console.log('budgetCategories', budgetCategories)
+
+  const monthOptions = useMemo(() => {
+    return Array.from({ length: 6 }, (_, i) => {
+      const date = subMonths(new Date(), i); // start from i = 0 for current month
+      return {
+        name: format(date, 'MMMM yyyy'),
+        value: { month: getMonth(date), year: getYear(date) },
+      };
+    }).reverse(); // so current month shows up last
+  }, []);
+
+
+  console.log('monthOptions', monthOptions)
+
+  useEffect(() => {
+    if (!transactions || transactions.length === 0) {
+      setMonthlyData({});
+      return;
+    }
+
+    const result = {};
+
+    monthOptions.forEach(({ name, value }) => {
+      // For each month, sum income and expenses using reduce
+      const { income, expense } = transactions.reduce(
+        (acc, txn) => {
+          if (!txn.Date || txn.Amount == null) return acc;
+
+          const amount = Number(txn.Amount);
+          if (isNaN(amount) || amount === 0) return acc;
+
+          const txnDate = new Date(txn.Date);
+          if (isNaN(txnDate.getTime())) return acc;
+
+          if (
+            txnDate.getMonth() === value.month &&
+            txnDate.getFullYear() === value.year
+          ) {
+            if (amount > 0) {
+              acc.income += amount;
+            } else if (amount < 0) {
+              acc.expense += Math.abs(amount);
+            }
+          }
+          return acc;
+        },
+        { income: 0, expense: 0 }
+      );
+
+      result[name] = {
+        monthlyIncome: parseFloat(income.toFixed(2)),
+        monthlyExpense: parseFloat(expense.toFixed(2)),
+        monthlyRemaining: parseFloat((income - expense).toFixed(2)),
+      };
+    });
+
+    setMonthlyData(result);
+  }, [transactions, monthOptions]);
+
+  //Obtain the total income for the current month
   //Note: Income is in the transactions list
-
   useEffect(() => {
     if (!transactions || transactions.length === 0) {
       setIncomeTotal(0);
@@ -102,52 +182,53 @@ function App() {
     setBalance(totalBalance);
   }, [transactions]);
 
-  // Calculate amounts by category
+  // Calculate amounts by category on each month
+
   useEffect(() => {
+    if (!transactions || transactions.length === 0) return;
 
-    async function fetchExpenses() {
-      try {
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
+    const result = {};
 
-        const totals = transactions.reduce((acc, txn) => {
-          const amount = Number(txn.Amount || txn.amount || 0);
-          const category = txn.Category || txn.category || 'Other';
+    transactions.forEach((txn) => {
+      const amount = Number(txn.Amount || txn.amount || 0);
+      const category = txn.Category || txn.category || 'Other';
+      const txnDate = new Date(txn.Date || txn.date);
+      const monthLabel = format(txnDate, 'MMMM yyyy');
 
-          const txnDate = new Date(txn.Date || txn.date);
-          const txnMonth = txnDate.getMonth();
-          const txnYear = txnDate.getFullYear();
-
-          // Calculate based on current month and year
-          if (amount < 0 && txnMonth === currentMonth && txnYear === currentYear) {
-            acc[category] = (acc[category] || 0) + Math.abs(amount);
-          }
-
-          return acc;
-        }, {});
-
-        setExpensesByCategory(totals);
-      } catch (err) {
-        console.error('Error loading recent expenses:', err);
+      // Only process expenses (negative amounts)
+      if (amount < 0) {
+        if (!result[monthLabel]) {
+          result[monthLabel] = {};
+        }
+        result[monthLabel][category] = (result[monthLabel][category] || 0) + Math.abs(amount);
       }
+    });
+
+    // Convert inner objects to arrays like [{ name, amount }]
+    const formattedResult = {};
+    for (const [month, categories] of Object.entries(result)) {
+      formattedResult[month] = Object.entries(categories).map(([name, amount]) => ({
+        name,
+        amount: parseFloat(amount.toFixed(2)),
+      }));
     }
 
-    fetchExpenses();
+    setExpensesByCategory(formattedResult);
   }, [transactions]);
 
-
+  const currentMonthLabel = format(new Date(), 'MMMM yyyy');
+  const remaining = monthlyData[currentMonthLabel]?.monthlyRemaining || 0;
   return (
     <>
-      <Header header = {header} />
-      <Navigation setHeader={setHeader}/>
+      <Header header={header} />
+      <Navigation setHeader={setHeader} />
       <Routes>
-        <Route path="/" element={<Dashboard transactions={transactions}
-          incomeTotal={incomeTotal} balance={balance} expensesByCategory={expensesByCategory} />} />
-        <Route path="/transactions" element={<Transactions expensesByCategory={expensesByCategory} transactions={transactions}/>} />
-        <Route path = "/budget" element={<Budget expensesByCategory={expensesByCategory}/>}/>
+        <Route path="/" element={<Dashboard transactions={transactions} monthOptions={monthOptions}
+          incomeTotal={incomeTotal} balance={remaining} expensesByCategory={expensesByCategory} />} />
+        <Route path="/transactions" element={<Transactions expensesByCategory={expensesByCategory} transactions={transactions} />} />
+        <Route path="/budget/*" element={<Budget incomeData={monthlyData} categoryData={expensesByCategory} budgetCategories={budgetCategories} />} />
+        <Route path="/editBudget" element={<EditBudget budgetCategories={budgetCategories} setBudgetcategories={setBudgetcategories} />} />
       </Routes></>
-
   )
 }
 
