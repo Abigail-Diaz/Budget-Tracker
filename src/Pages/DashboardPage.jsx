@@ -6,19 +6,20 @@ import RecentExpensesList from '../RecentExpensesList.jsx';
 import Footer from '../Footer.jsx'
 import styles from './Dashboard.module.css';
 
-function Dashboard({ header, transactions, incomeTotal, balance, expensesByCategory }) {
+function Dashboard({ transactions, incomeTotal, balance, expensesByCategory, monthOptions }) {
+  const currentMonth = 'June 2025';
   return (
     <>
-      <Header header={header} />
-      <Navigation />
-      <div >
-        <MonthlyExpenseGraph transactions={transactions} />
-        <div className={styles.cardRow}>
-          <Card title = {'Total Income '} amount={incomeTotal} />
-          <Card title = {'Balance'} amount = {balance} />
-          <RecentExpensesList expensesByCategory={expensesByCategory} />
+      <div className = {styles.wrapper}>
+        <div className={styles.cardColumn}>
+          <Card title={'Total Income'} amount={incomeTotal} />
+          <Card title={'Remaining'} amount={balance} />
+        </div>
+        <div className={styles.chartArea}>
+          <MonthlyExpenseGraph transactions={transactions} monthOptions={monthOptions} />
         </div>
       </div>
+      <RecentExpensesList expensesByCategory={expensesByCategory[currentMonth]} />
       <Footer />
     </>
   );
