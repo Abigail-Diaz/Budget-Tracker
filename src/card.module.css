@@ -2,14 +2,14 @@
   background: #ffffff;
   border-radius: 1rem;
   padding: 1rem;
-  width: 32%;
+  
   font-family: Roboto, sans-serif;
   color: black;
   text-align: left;
 }
 
 .incomeCard h3 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
 }
 
 .incomeCard p {

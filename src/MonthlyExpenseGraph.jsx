@@ -40,7 +40,7 @@ const colorByMonth = monthOptions.reduce((acc, option) => {
   return acc;
 }, {});
 
-function MonthlyExpenseGraph({ transactions }) {
+function MonthlyExpenseGraph({ transactions}) {
 
   // States to manage selected months and series data
   const [selectedMonths, setSelectedMonths] = useState([]);
@@ -52,6 +52,7 @@ function MonthlyExpenseGraph({ transactions }) {
   const currentDate = new Date();
   const currentMonth = getMonth(currentDate);
   const currentYear = getYear(currentDate);
+  const currentMonthLabel = format(currentDate, 'MMMM');
 
   useEffect(() => {
     if (!transactions || transactions.length === 0) return;
@@ -111,8 +112,6 @@ function MonthlyExpenseGraph({ transactions }) {
     setSeriesData(groupedData);
   }, [transactions, selectedMonths]);
 
-  const currentMonthLabel = format(currentDate, 'MMMM');
-
   // Reusable select style object
   const selectStyles = {
     control: (styles) => ({ ...styles, marginBottom: '1rem' }),
@@ -141,23 +140,19 @@ function MonthlyExpenseGraph({ transactions }) {
     <div
       // Main container styling for the expense graph card
       style={{
-        width: '60%',
+        width: '90%',
         backgroundColor: '#ffffff',
-        marginTop: '150px',
-        fontFamily: 'Arial, sans-serif',
+        fontFamily: 'roboto',
         zIndex: 4,
-        position: 'relative',
         borderRadius: '1.5rem',
-        marginLeft: '20%',
-        boxShadow: '0 4px 12px rgba(124, 34, 160, 0.57)',
         padding: '1rem',
         textAlign: 'left',
       }}
     >
       {/* Header showing which month’s expenses are being displayed */}
-      <h3 style={{ marginBottom: '0.5rem' }}>{currentMonthLabel}'s Expenses</h3>
+      <h3 style={{ marginBottom: '0.5rem', fontSize: '2rem' }}>{currentMonthLabel}'s Expenses</h3>
       {/* Current month’s total expense amount */}
-      <p style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '2rem' }}>
+      <p style={{ fontSize: '1.7rem', fontWeight: 'bold', marginBottom: '2rem' }}>
         ${totalCurrentMonth.toFixed(2)}
       </p>
 
