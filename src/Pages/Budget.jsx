@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import Card from "../Card.jsx";
 import PieChartExpense from "../PieChart";
+import BarChart from '../BarChart.jsx';
 import styles from "./Budget.module.css";
+import BudgetProgressBars from '../BudgetProgressBars';
 
 import { format, getMonth } from 'date-fns';
 
-function Budget({ incomeData }) {
+function Budget({ incomeData, categoryData, budgetCategories }) {
     const now = new Date();
     const currentMonth = getMonth(now);
 
     const currentMonthLabel = format(new Date(), 'MMMM yyyy');
-
+    
     // selected month from drop down menu
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     // monthly expenses and remaining balance (income - expense) based on selectedMonth
@@ -37,7 +39,7 @@ function Budget({ incomeData }) {
         <div className={styles.wrapper}>
             <div className={styles.cardColumn}>
                 {/* month selection */}
-                <label htmlFor="month-select">Select Month:</label>
+                <label htmlFor="month-select" style={{ fontWeight: '600', color: '#5a4d8c' }}>Select Month:</label>
                 <select id="month-select" value={selectedMonth} onChange={handleChange}>
                     {Object.keys(incomeData).map((month) => (
                         <option key={month} value={month}>
@@ -60,7 +62,11 @@ function Budget({ incomeData }) {
 
                     label={`${selectedMonth} Breakdown`}
                 />
-
+                <BarChart dataObject={categoryData[selectedMonth]} />
+                <BudgetProgressBars
+                    actualExpenses={categoryData[selectedMonth]}
+                    budgetCategories={budgetCategories}
+                />
             </div>
         </div>
     );
