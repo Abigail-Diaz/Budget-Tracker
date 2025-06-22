@@ -1,0 +1,55 @@
+.wrapper {
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  padding: 1.5rem;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #4b0082;
+}
+
+.category {
+  margin-bottom: 1rem;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+  color: #333;
+}
+
+.barContainer {
+  background-color: #f0e6fa;
+  border-radius: 1rem;
+  overflow: hidden;
+  height: 1rem;
+  position: relative;
+}
+
+.barFill {
+  height: 100%;
+  background-color: #9b59b6; /* Light purple */
+  transition: width 0.4s ease;
+}
+
+.barFill.over {
+  background-color: #800080; /* Deep purple when over budget */
+}
+
+.barOverflow {
+  height: 100%;
+  background-color: #5a004f; /* Red-purple overflow */
+  position: absolute;
+  left: 100%;
+  top: 0;
+  transition: width 0.4s ease;
+}
+
+
