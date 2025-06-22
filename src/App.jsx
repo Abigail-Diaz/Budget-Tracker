@@ -59,43 +59,72 @@ function App() {
     fetchTodos()
   }, [url, token])
 
-  // Fetch budget categories from Airtable on mount
-  useEffect(() => {
-    async function fetchTodos() {
-      try {
-        const resp = await fetch(categoriesUrl, createOptions('GET'))
-        if (!resp.ok) throw new Error(resp.statusText)
-        const { records } = await resp.json()
+// Fetch budget categories from Airtable on mount
+useEffect(() => {
+  async function fetchTodos() {
+    try {
+      const resp = await fetch(categoriesUrl, createOptions('GET'))
+      if (!resp.ok) throw new Error(resp.statusText)
+      const { records } = await resp.json()
 
-        const simplified = records.map((record) => record.fields)
+      //  include Airtable's id
+      const simplified = records.map(record => ({
+        id: record.id,
+        ...record.fields
+      }));
 
-        setBudgetCategories(simplified)
-      } catch (error) {
-      }
+      setBudgetCategories(simplified);
+    } catch (error) {
+      console.error('Error fetching budget categories:', error);
     }
+  }
 
-    fetchTodos()
-  }, [url, token])
+  fetchTodos();
+}, [categoriesUrl, token]);
+
 
   console.log(transactions)
   console.log('budgetCategories', budgetCategories)
 
   // Add a new category
   const handleAddCategory = async (newCategory) => {
-    const fields = {name: newCategory.name, amount: newCategory.amount}
+    const fields = { name: newCategory.name, amount: newCategory.amount }
 
     // Obtain the json transalation
-    const options = createOptions('POST', [{fields}]);
+    const options = createOptions('POST', [{ fields }]);
 
-    try{
+    try {
       // Add the category to Airtable
-      const resp = await fetch (categoriesUrl, options);
+      const resp = await fetch(categoriesUrl, options);
     }
-    catch(error){
+    catch (error) {
 
     }
 
-  } 
+  }
+
+  // edit categories
+const handleEditCategory = async (editedCategories) => {
+  const records = editedCategories.map(category => ({
+    id: category.id,
+    fields: {
+      name: category.name,
+      amount: category.amount,
+    },
+  }));
+
+  // Pass the array directly
+  const options = createOptions('PATCH', records);
+
+  try {
+    const resp = await fetch(categoriesUrl, options);
+    if (!resp.ok) throw new Error(`Failed to update: ${resp.status}`);
+    const data = await resp.json();
+    console.log('Updated categories:', data);
+  } catch (error) {
+    console.error('Error updating categories:', error);
+  }
+};
 
   const monthOptions = useMemo(() => {
     return Array.from({ length: 6 }, (_, i) => {
@@ -244,7 +273,8 @@ function App() {
           incomeTotal={incomeTotal} balance={remaining} expensesByCategory={expensesByCategory} />} />
         <Route path="/transactions" element={<Transactions expensesByCategory={expensesByCategory} transactions={transactions} />} />
         <Route path="/budget/*" element={<Budget incomeData={monthlyData} categoryData={expensesByCategory} budgetCategories={budgetCategories} />} />
-        <Route path="/editBudget" element={<EditBudget budgetCategories={budgetCategories} addBudgetCategory = {handleAddCategory} setBudgetCategories={setBudgetCategories} />} />
+        <Route path="/editBudget" element={<EditBudget budgetCategories={budgetCategories} addBudgetCategory={handleAddCategory} 
+        setBudgetCategories={setBudgetCategories} editBudgetCategory = {handleEditCategory}/>} />
       </Routes></>
   )
 }
