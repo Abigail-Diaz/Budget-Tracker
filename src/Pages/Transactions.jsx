@@ -1,13 +1,12 @@
 
-import PieChartExpense from '../PieChart.jsx';
-
-function Transactions({expensesByCategory}) {
+import TransactionList from '../TransactionList.jsx';
+function Transactions({ transactions }) {
   return (
     <>
-      <header >
-        <h1>Transaction</h1>
-      </header>
-      <PieChartExpense expensesByCategory={expensesByCategory} />
+      <div>
+        <TransactionList transactions={transactions} />
+      </div>
+
     </>
   );
 }
