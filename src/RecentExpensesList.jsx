@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styles from './RecentExpensesList.module.css';
+
 import foodIcon from './assets/Icons/food.png';
 import travelIcon from './assets/Icons/travel.png';
 import shoppingIcon from './assets/Icons/shopping.png';
@@ -9,7 +10,7 @@ import healthIcon from './assets/Icons/health.png';
 import groceryIcon from './assets/Icons/groceries.png';
 import otherIcon from './assets/Icons/other.png';
 
-// Icons for each category
+// Map category names to icons
 const categoryIcons = {
   Food: foodIcon,
   Travel: travelIcon,
@@ -18,63 +19,29 @@ const categoryIcons = {
   Entertainment: entertainmentIcon,
   Health: healthIcon,
   Groceries: groceryIcon,
-  Other: otherIcon
+  Other: otherIcon,
 };
 
-// Calculate recent expenses by category and current month
-function RecentExpensesList({ transactions }) {
-  const [expensesByCategory, setExpensesByCategory] = useState({});
-
-  useEffect(() => {
-  
-  async function fetchExpenses() {
-    try {
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
-
-      const totals = transactions.reduce((acc, txn) => {
-        const amount = Number(txn.Amount || txn.amount || 0);
-        const category = txn.Category || txn.category || 'Other';
-
-        const txnDate = new Date(txn.Date || txn.date);
-        const txnMonth = txnDate.getMonth();
-        const txnYear = txnDate.getFullYear();
-        
-        // Calculate based on current month and year
-        if (amount < 0 && txnMonth === currentMonth && txnYear === currentYear) {
-          acc[category] = (acc[category] || 0) + Math.abs(amount);
-        }
-
-        return acc;
-      }, {});
-
-      setExpensesByCategory(totals);
-    } catch (err) {
-      console.error('Error loading recent expenses:', err);
-    }
+// Accepts an array like [{ name: 'Food', amount: 123 }, ...]
+function RecentExpensesList({ expensesByCategory }) {
+  if (!Array.isArray(expensesByCategory) || expensesByCategory.length === 0) {
+    return <p className={styles.noData}>No expense data for this month.</p>;
   }
-
-  fetchExpenses();
-}, [transactions]);
-
 
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}>Recent Expenses</h2>
-      {Object.entries(expensesByCategory).map(([category, total]) => (
-        <div key={category} className={styles.categoryItem}>
+      {expensesByCategory.map(({ name, amount }) => (
+        <div key={name} className={styles.categoryItem}>
           <div className={styles.categoryHeader}>
             <img
-              src={categoryIcons[category] || categoryIcons['Other']}
-              alt={category}
+              src={categoryIcons[name] || categoryIcons['Other']}
+              alt={name}
               className={styles.categoryIcon}
             />
-            <h3 className={styles.categoryTitle}>{category}</h3>
+            <h3 className={styles.categoryTitle}>{name}</h3>
           </div>
-          <p className={styles.categoryAmount}>
-            -${total.toFixed(2)}
-          </p>
+          <p className={styles.categoryAmount}>-${amount.toFixed(2)}</p>
         </div>
       ))}
     </div>
