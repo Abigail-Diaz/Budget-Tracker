@@ -14,7 +14,7 @@ import { Routes, Route } from 'react-router-dom'
 function App() {
   const [header, setHeader] = useState('Dashboard')
   const [transactions, setTransactions] = useState([])
-  const [budgetCategories, setBudgetcategories] = useState([]);
+  const [budgetCategories, setBudgetCategories] = useState([]);
   const [incomeTotal, setIncomeTotal] = useState(0);
   const [balance, setBalance] = useState(0);
   const [expensesByCategory, setExpensesByCategory] = useState({});
@@ -69,7 +69,7 @@ function App() {
 
         const simplified = records.map((record) => record.fields)
 
-        setBudgetcategories(simplified)
+        setBudgetCategories(simplified)
       } catch (error) {
       }
     }
@@ -79,6 +79,23 @@ function App() {
 
   console.log(transactions)
   console.log('budgetCategories', budgetCategories)
+
+  // Add a new category
+  const handleAddCategory = async (newCategory) => {
+    const fields = {name: newCategory.name, amount: newCategory.amount}
+
+    // Obtain the json transalation
+    const options = createOptions('POST', [{fields}]);
+
+    try{
+      // Add the category to Airtable
+      const resp = await fetch (categoriesUrl, options);
+    }
+    catch(error){
+
+    }
+
+  } 
 
   const monthOptions = useMemo(() => {
     return Array.from({ length: 6 }, (_, i) => {
@@ -227,7 +244,7 @@ function App() {
           incomeTotal={incomeTotal} balance={remaining} expensesByCategory={expensesByCategory} />} />
         <Route path="/transactions" element={<Transactions expensesByCategory={expensesByCategory} transactions={transactions} />} />
         <Route path="/budget/*" element={<Budget incomeData={monthlyData} categoryData={expensesByCategory} budgetCategories={budgetCategories} />} />
-        <Route path="/editBudget" element={<EditBudget budgetCategories={budgetCategories} setBudgetcategories={setBudgetcategories} />} />
+        <Route path="/editBudget" element={<EditBudget budgetCategories={budgetCategories} addBudgetCategory = {handleAddCategory} setBudgetCategories={setBudgetCategories} />} />
       </Routes></>
   )
 }
