@@ -100,3 +100,32 @@
     text-align: left;
   }
 }
+
+.transactionListHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paginationControls {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.paginationControls button {
+  padding: 0.5rem 1rem;
+  background-color: #eae3f9;
+  color: #5a2091;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.paginationControls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
