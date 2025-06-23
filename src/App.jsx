@@ -6,13 +6,13 @@ import Navigation from './Navigation.jsx'
 import Dashboard from './Pages/DashboardPage.jsx'
 import Transactions from './Pages/Transactions.jsx'
 import Budget from './Pages/Budget.jsx'
-import EditBudget from './Pages/EditBudget.jsx'
+import AddExpenseForm from './AddExpenseForm.jsx'
 
 import { format, subMonths, getMonth, getYear } from 'date-fns';
 import { Routes, Route } from 'react-router-dom'
 
 function App() {
-  const [header, setHeader] = useState('Dashboard')
+  const [header, setHeader] = useState('Expense Tracker')
   const [transactions, setTransactions] = useState([])
   const [budgetCategories, setBudgetCategories] = useState([]);
   const [incomeTotal, setIncomeTotal] = useState(0);
@@ -49,42 +49,43 @@ function App() {
         if (!resp.ok) throw new Error(resp.statusText)
         const { records } = await resp.json()
 
-        const simplified = records.map((record) => record.fields)
+        // Include the Airtable record ID
+        const simplified = records.map((record) => ({
+          id: record.id,  //  Airtable record ID needed for editing
+          ...record.fields
+        }))
 
         setTransactions(simplified)
       } catch (error) {
+        console.error('Error fetching transactions:', error)
       }
     }
 
     fetchTodos()
   }, [url, token])
 
-// Fetch budget categories from Airtable on mount
-useEffect(() => {
-  async function fetchTodos() {
-    try {
-      const resp = await fetch(categoriesUrl, createOptions('GET'))
-      if (!resp.ok) throw new Error(resp.statusText)
-      const { records } = await resp.json()
+  // Fetch budget categories from Airtable on mount
+  useEffect(() => {
+    async function fetchTodos() {
+      try {
+        const resp = await fetch(categoriesUrl, createOptions('GET'))
+        if (!resp.ok) throw new Error(resp.statusText)
+        const { records } = await resp.json()
 
-      //  include Airtable's id
-      const simplified = records.map(record => ({
-        id: record.id,
-        ...record.fields
-      }));
+        //  include Airtable's id, and fields name and amount in a single object
+        const simplified = records.map(record => ({
+          id: record.id,
+          ...record.fields
+        }));
 
-      setBudgetCategories(simplified);
-    } catch (error) {
-      console.error('Error fetching budget categories:', error);
+        setBudgetCategories(simplified);
+      } catch (error) {
+        console.error('Error fetching budget categories:', error);
+      }
     }
-  }
 
-  fetchTodos();
-}, [categoriesUrl, token]);
-
-
-  console.log(transactions)
-  console.log('budgetCategories', budgetCategories)
+    fetchTodos();
+  }, [categoriesUrl, token]);
 
   // Add a new category
   const handleAddCategory = async (newCategory) => {
@@ -98,33 +99,65 @@ useEffect(() => {
       const resp = await fetch(categoriesUrl, options);
     }
     catch (error) {
+    }
+  }
 
+  // add a new expense (transaction)
+  const handleAddExpense = async (newExpense) => {
+    const fields = {
+      Date: newExpense.Date,        
+      Amount: newExpense.Amount,
+      Category: newExpense.Category,
+      Description: newExpense.Description
     }
 
+    // Obtain the json transalation
+    const options = createOptions('POST', [{ fields }]);
+
+    try {
+      // Add the category to Airtable
+      const resp = await fetch(url, options);
+    }
+    catch (error) {
+    }
   }
 
-  // edit categories
-const handleEditCategory = async (editedCategories) => {
-  const records = editedCategories.map(category => ({
-    id: category.id,
-    fields: {
-      name: category.name,
-      amount: category.amount,
-    },
-  }));
+  //handleAddExpense();
 
-  // Pass the array directly
-  const options = createOptions('PATCH', records);
+  /*   // edit categories
+    const handleEditCategory = async (editedCategories) => {
+      const records = editedCategories.map(category => ({
+        id: category.id,
+        fields: {
+          name: category.name,
+          amount: category.amount,
+        },
+      }));
+  
+      // Pass the array directly
+      const options = createOptions('PATCH', records);
+  
+      try {
+        const resp = await fetch(categoriesUrl, options);
+        if (!resp.ok) throw new Error(`Failed to update: ${resp.status}`);
+        const data = await resp.json();
+        console.log('Updated categories:', data);
+      } catch (error) {
+        console.error('Error updating categories:', error);
+      }
+    }; */
 
-  try {
-    const resp = await fetch(categoriesUrl, options);
-    if (!resp.ok) throw new Error(`Failed to update: ${resp.status}`);
-    const data = await resp.json();
-    console.log('Updated categories:', data);
-  } catch (error) {
-    console.error('Error updating categories:', error);
+
+  // Edit an existing expense by ID
+  async function handleEditExpense({ id, fields }) {
+
+    const options = createOptions('PATCH', [{ id, fields }]);
+
+    const resp = await fetch(url, options);
+    if (!resp.ok) throw new Error(`Failed to edit expense: ${resp.statusText}`);
+    const json = await resp.json();
+    return json;
   }
-};
 
   const monthOptions = useMemo(() => {
     return Array.from({ length: 6 }, (_, i) => {
@@ -135,9 +168,6 @@ const handleEditCategory = async (editedCategories) => {
       };
     }).reverse(); // so current month shows up last
   }, []);
-
-
-  console.log('monthOptions', monthOptions)
 
   useEffect(() => {
     if (!transactions || transactions.length === 0) {
@@ -262,19 +292,23 @@ const handleEditCategory = async (editedCategories) => {
     setExpensesByCategory(formattedResult);
   }, [transactions]);
 
+  function getCategoryNames(budgetCategories) {
+    return budgetCategories.map(category => category.name);
+  }
+
+  const categoryNames = getCategoryNames(budgetCategories);
   const currentMonthLabel = format(new Date(), 'MMMM yyyy');
   const remaining = monthlyData[currentMonthLabel]?.monthlyRemaining || 0;
   return (
     <>
       <Header header={header} />
-      <Navigation setHeader={setHeader} />
+      <Navigation />
       <Routes>
         <Route path="/" element={<Dashboard transactions={transactions} monthOptions={monthOptions}
           incomeTotal={incomeTotal} balance={remaining} expensesByCategory={expensesByCategory} />} />
-        <Route path="/transactions" element={<Transactions expensesByCategory={expensesByCategory} transactions={transactions} />} />
+        <Route path="/transactions" element={<Transactions transactions={transactions} handleEditExpense={handleEditExpense} categoryNames={categoryNames} />} />
         <Route path="/budget/*" element={<Budget incomeData={monthlyData} categoryData={expensesByCategory} budgetCategories={budgetCategories} />} />
-        <Route path="/editBudget" element={<EditBudget budgetCategories={budgetCategories} addBudgetCategory={handleAddCategory} 
-        setBudgetCategories={setBudgetCategories} editBudgetCategory = {handleEditCategory}/>} />
+        <Route path='/addExpense' element={<AddExpenseForm handleAddExpense={handleAddExpense} categoryNames={categoryNames} />} />
       </Routes></>
   )
 }
