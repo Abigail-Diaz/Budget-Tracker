@@ -1,22 +1,20 @@
-/* TransactionList.module.css */
-
 .transactionListContainer {
   max-width: 800px;
   margin: 200px auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f7f7fa; /* very light gray */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f7fa;
   border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(101, 78, 160, 0.2); /* soft purple shadow */
+  box-shadow: 0 4px 12px rgba(101, 78, 160, 0.2);
   padding: 1.5rem;
-  color: #4a3f7a; /* dark purple text */
+  color: #4a3f7a;
 }
 
 .transactionListHeader {
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #5a4d8c; /* medium purple */
-  border-bottom: 2px solid #b5a6d0; /* light purple border */
+  color: #5a4d8c;
+  border-bottom: 2px solid #b5a6d0;
   padding-bottom: 0.5rem;
 }
 
@@ -29,8 +27,8 @@
 .transactionListFilters select {
   padding: 0.4rem 0.8rem;
   border-radius: 0.5rem;
-  border: 1.5px solid #b0a9c9; /* pale purple-gray */
-  background-color: #e9e7f3; /* pale purple-gray background */
+  border: 1.5px solid #b0a9c9;
+  background-color: #e9e7f3;
   color: #4a3f7a;
   font-weight: 600;
   cursor: pointer;
@@ -47,17 +45,17 @@
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #dddce6; /* very light gray */
+  border-bottom: 1px solid #dddce6;
   align-items: center;
   transition: background-color 0.2s ease;
 }
 
 .transactionItem:hover {
-  background-color: #e9e7f3; /* subtle highlight on hover */
+  background-color: #e9e7f3;
 }
 
 .transactionDate {
-  color: #7a739c; /* medium gray-purple */
+  color: #7a739c;
   flex-basis: 25%;
   font-size: 0.9rem;
 }
@@ -75,18 +73,17 @@
   flex-basis: 20%;
   text-align: right;
   font-weight: 700;
-  color: #5a4d8c; /* medium purple */
+  color: #5a4d8c;
 }
 
 .transactionAmount.negative {
-  color: #9e3f3f; /* muted red for expenses */
+  color: #9e3f3f;
 }
 
 .transactionAmount.positive {
-  color: #4a7a4a; /* muted green for income */
+  color: #4a7a4a;
 }
 
-/* Responsive tweaks */
 @media (max-width: 600px) {
   .transactionItem {
     flex-direction: column;
@@ -129,3 +126,159 @@
   cursor: not-allowed;
 }
 
+.columnHeaders {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.headerDate,
+.headerCategory,
+.headerDescription,
+.headerAmount {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.headerAmount {
+  text-align: right;
+}
+
+.transactionItem {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+  align-items: center;
+}
+
+.transactionItem:hover {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.transactionDate {
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.transactionCategory {
+  font-weight: 500;
+  color: #495057;
+}
+
+.transactionDescription {
+  color: #6c757d;
+}
+
+.transactionAmount {
+  text-align: right;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.editForm {
+  display: contents;
+}
+
+.formInput {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.buttonRow {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.saveButton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.saveButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cancelButton {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+}
+
+@media (max-width: 768px) {
+  .columnHeaders,
+  .transactionItem {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .headerDescription,
+  .headerAmount,
+  .transactionDescription,
+  .transactionAmount {
+    grid-column: 1 / -1;
+  }
+
+  .transactionAmount {
+    text-align: left;
+  }
+
+  .headerAmount {
+    text-align: left;
+  }
+}

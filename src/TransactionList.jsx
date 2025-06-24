@@ -86,7 +86,7 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
         Description: editFormData.Description,
       };
 
-      // Find the original transaction to get its Airtable ID
+      // Find the original transaction to get its ID
       const originalTransaction = filteredTransactions.find(txn => {
         const uniqueId = txn.id || `temp-${filteredTransactions.indexOf(txn)}`;
         return uniqueId === editingId;
@@ -96,19 +96,8 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
         throw new Error('Cannot find transaction ID for editing');
       }
 
-      // Call the parent's edit handler and wait for it to complete
+      // Call the parent's edit handler - parent handles optimistic update
       await handleEditExpense({ id: originalTransaction.id, fields });
-      
-      // Update the local state immediately
-      setFilteredTransactions(prevTransactions => 
-        prevTransactions.map(txn => {
-          const uniqueId = txn.id || `temp-${prevTransactions.indexOf(txn)}`;
-          if (uniqueId === editingId) {
-            return { ...txn, ...fields };
-          }
-          return txn;
-        })
-      );
 
       setEditingId(null);
       setEditFormData({});
@@ -166,14 +155,19 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                       onChange={handleChange}
                       className={styles.formInput}
                     />
-                    <input
-                      type="text"
+                    <select
                       name="Category"
                       value={editFormData.Category}
                       onChange={handleChange}
                       className={styles.formInput}
-                      placeholder="Category"
-                    />
+                    >
+                      <option value="">Select Category</option>
+                      {categoryNames && categoryNames.map((category, idx) => (
+                        <option key={idx} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       name="Description"
