@@ -3,10 +3,10 @@ import './App.css'
 
 import Header from './Header.jsx'
 import Navigation from './Navigation.jsx'
-import Dashboard from './Pages/DashboardPage.jsx'
+import Dashboard from './Pages/Dashboard.jsx'
 import Transactions from './Pages/Transactions.jsx'
 import Budget from './Pages/Budget.jsx'
-import AddExpenseForm from './AddExpenseForm.jsx'
+import AddExpense from './Pages/AddExpense.jsx'
 
 import { format, subMonths, getMonth, getYear } from 'date-fns';
 import { Routes, Route } from 'react-router-dom'
@@ -27,11 +27,10 @@ function App() {
   const [isTransactionsError, setIsTransactionsError] = useState({ state: false, errorMessage: '', error: '' });
   const [isCategoriesError, setIsCategoriesError] = useState({ state: false, errorMessage: '', error: '' });
 
-
   const baseId = import.meta.env.VITE_BASE_ID;
   const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`
   const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${import.meta.env.VITE_TABLE_CATEGORIES}`;
-  const token = `Bearer ${import.meta.env.VIE_PAT}`
+  const token = `Bearer ${import.meta.env.VITE_PAT}`
 
   function createOptions(method, records) {
     const opts = {
@@ -47,6 +46,7 @@ function App() {
     return opts
   }
 
+  // Fetch transactions
   useEffect(() => {
     async function fetchTodos() {
       try {
@@ -74,6 +74,7 @@ function App() {
     fetchTodos()
   }, [url, token])
 
+  // Fetch budget categories
   useEffect(() => {
     async function fetchTodos() {
       try {
@@ -99,28 +100,66 @@ function App() {
     fetchTodos();
   }, [categoriesUrl, token]);
 
+  // Optimistic update for adding expenses
   const handleAddExpense = async (newExpense) => {
-    const fields = {
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    const tempTransaction = {
+      id: tempId,
       Date: newExpense.Date,
       Amount: newExpense.Amount,
       Category: newExpense.Category,
-      Description: newExpense.Description
-    }
-
-    const options = createOptions('POST', [{ fields }]);
+      Description: newExpense.Description,
+    };
 
     try {
+      setTransactions(prevTransactions => [tempTransaction, ...prevTransactions]);
+
+      const fields = {
+        Date: newExpense.Date,
+        Amount: newExpense.Amount,
+        Category: newExpense.Category,
+        Description: newExpense.Description
+      }
+
+      const options = createOptions('POST', [{ fields }]);
       const resp = await fetch(url, options);
+      const data = await resp.json();
+      const saved = data.records[0];
+
+      setTransactions(prevTransactions =>
+        prevTransactions.map(txn =>
+          txn.id === tempId ? { id: saved.id, ...saved.fields } : txn
+        )
+      );
+    } catch (error) {
+      setTransactions(prevTransactions =>
+        prevTransactions.filter(txn => txn.id !== tempId)
+      );
+      throw error;
     }
-    catch (error) { }
   }
 
+  // Optimistic update for editing expenses
   async function handleEditExpense({ id, fields }) {
-    const options = createOptions('PATCH', [{ id, fields }]);
-    const resp = await fetch(url, options);
-    if (!resp.ok) throw new Error(`Failed to edit expense: ${resp.statusText}`);
-    const json = await resp.json();
-    return json;
+    const originalTransaction = transactions.find(txn => txn.id === id);
+    if (!originalTransaction) throw new Error('Transaction not found');
+
+    try {
+      setTransactions(prev =>
+        prev.map(txn => (txn.id === id ? { ...txn, ...fields } : txn))
+      );
+
+      const options = createOptions('PATCH', [{ id, fields }]);
+      const resp = await fetch(url, options);
+      if (!resp.ok) throw new Error(`Failed to edit expense: ${resp.statusText}`);
+      await resp.json();
+    } catch (error) {
+      setTransactions(prev =>
+        prev.map(txn => (txn.id === id ? originalTransaction : txn))
+      );
+      throw error;
+    }
   }
 
   const monthOptions = useMemo(() => {
@@ -257,6 +296,7 @@ function App() {
               handleEditExpense={handleEditExpense}
               categoryNames={categoryNames}
               isLoading={isTransactionsLoading}
+              isError={isTransactionsError}
             />
           }
         />
@@ -275,9 +315,11 @@ function App() {
         <Route
           path="/addExpense"
           element={
-            <AddExpenseForm
+            <AddExpense
               handleAddExpense={handleAddExpense}
               categoryNames={categoryNames}
+              isLoading={isCategoriesLoading || isTransactionsLoading}
+              isError={isCategoriesError || isTransactionsError}
             />
           }
         />
