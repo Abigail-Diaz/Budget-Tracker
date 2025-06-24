@@ -16,13 +16,13 @@ const graphColors = [
   "#f48fb1", // pink
   "#81d4fa", // light blue
   "#aed581", // light green
-  "#fff176", // yellow
+  "#FF8282", // yellow
   "#ffab91", // orange
   "#ce93d8", // purple
 ];
 
 // Generate list for the last 6 months (excluding current month)
-const monthOptions = Array.from({ length: 6 }, (_, i) => {
+const monthOptions = Array.from({ length: 5 }, (_, i) => {
   const date = subMonths(new Date(), i + 1);
   const month = getMonth(date); // 0-based
   const year = getYear(date);
@@ -46,7 +46,7 @@ function MonthlyExpenseGraph({ transactions }) {
   const [totalCurrentMonth, setTotalCurrentMonth] = useState(0);
 
   const currentDate = new Date();
-  const currentMonth = getMonth(currentDate); // 0-based
+  const currentMonth = getMonth(currentDate);
   const currentYear = getYear(currentDate);
   const currentMonthLabel = format(currentDate, "MMMM");
 
