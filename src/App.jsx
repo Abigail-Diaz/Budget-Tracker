@@ -25,7 +25,7 @@ function App() {
 
   // Error states
   const [isTransactionsError, setIsTransactionsError] = useState({ state: false, errorMessage: '', error: '' });
-  const [isCategoriesError, setIsCategoriesError] = useState(false);
+  const [isCategoriesError, setIsCategoriesError] = useState({ state: false, errorMessage: '', error: '' });
 
 
   const baseId = import.meta.env.VITE_BASE_ID;
@@ -65,7 +65,7 @@ function App() {
 
         setTransactions(simplified)
       } catch (error) {
-        const message = error?.message?.trim() || error?.statusText || error?.toString() || fallbackMessage;
+        const message = error?.message?.trim() || error?.statusText || error?.toString();
         setIsTransactionsError({ state: true, errorMessage: 'Error fetching transactions ', error: message })
       } finally {
         setIsTransactionsLoading(false);
@@ -79,7 +79,7 @@ function App() {
       try {
         setIsCategoriesLoading(true);
         const resp = await fetch(categoriesUrl, createOptions('GET'))
-        if (!resp.ok) throw new Error(resp.statusText)
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText || 'Unknown error'}`);
         const { records } = await resp.json()
 
         const simplified = records.map(record => ({
@@ -89,7 +89,8 @@ function App() {
 
         setBudgetCategories(simplified);
       } catch (error) {
-        console.error('Error fetching budget categories:', error);
+        const message = error?.message?.trim() || error?.statusText || error?.toString();
+        setIsCategoriesError({ state: true, errorMessage: 'Error fetching budget categories', error: message })
       } finally {
         setIsCategoriesLoading(false);
       }
@@ -267,6 +268,7 @@ function App() {
               categoryData={expensesByCategory}
               budgetCategories={budgetCategories}
               isLoading={isCategoriesLoading || isTransactionsLoading}
+              isError={isCategoriesError}
             />
           }
         />

@@ -5,10 +5,11 @@ import BarChart from '../BarChart.jsx';
 import styles from "./Budget.module.css";
 import BudgetProgressBars from '../BudgetProgressBars.jsx';
 import Loading from '../Loading.jsx';
+import Error from '../Error.jsx';
 
-import { format, getMonth } from 'date-fns';
+import { format } from 'date-fns';
 
-function Budget({ incomeData, categoryData, budgetCategories, isLoading }) {
+function Budget({ incomeData, categoryData, budgetCategories, isLoading, isError }) {
     const now = new Date();
     const currentMonthLabel = format(now, 'MMMM yyyy');
 
@@ -45,6 +46,14 @@ function Budget({ incomeData, categoryData, budgetCategories, isLoading }) {
     // Show loading spinner while data is being fetched
     if (isLoading || !currentIncomeData) return <Loading message="Loading budget data..." />;
 
+    // Show error message if there is an error while fetching data
+    if (isError.state)
+    return (
+      <div style={{ marginTop: "200px", justifyContent: "center" }}>
+        <Error message={isError.errorMessage} />
+      </div>
+    );
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.cardColumn}>
@@ -73,9 +82,9 @@ function Budget({ incomeData, categoryData, budgetCategories, isLoading }) {
                     }}
                     label={`${selectedMonth} Breakdown`}
                 />
-                
+
                 <BarChart dataObject={categoryData[selectedMonth]} />
-                
+
                 <BudgetProgressBars
                     actualExpenses={categoryData[selectedMonth]}
                     budgetCategories={budgetCategories}
