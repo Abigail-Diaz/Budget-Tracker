@@ -9,13 +9,17 @@ import {
 
 const colors = ["#6a0dad", "#9b59b6", "#b39ddb", "#d1c4e9"];
 
+const labelMap = {
+  monthlyExpense: "Expenses",
+  monthlyRemaining: "Remaining",
+};
+
 // Pie chart to display amounts
 function PieChartExpense({ dataObject, label }) {
   if (!dataObject) return null;
 
-  // make dataObject into PieChart-compatible format
   const data = Object.entries(dataObject).map(([name, value]) => ({
-    name,
+    name: labelMap[name] || name,
     value: Math.abs(value),
   }));
 
@@ -31,7 +35,7 @@ function PieChartExpense({ dataObject, label }) {
             cx="50%"
             cy="50%"
             outerRadius={100}
-            label
+            label={({ name }) => name}
           >
             {data.map((_, index) => (
               <Cell
