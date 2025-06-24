@@ -1,5 +1,4 @@
 import styles from './BudgetProgressBars.module.css';
-import Button from './Button.jsx';
 
 /**
  * BudgetProgressBars Component
@@ -18,8 +17,6 @@ function BudgetProgressBars({
   actualExpenses = [],
   budgetCategories = [],
   heading = 'Budget Usage',        // default heading
-  buttonPath = '/editBudget',      // default path
-  buttonLabel = 'Edit Budget',     // default label
 }) {
   // Map actual expenses by category name for quick lookup
   const expenseMap = actualExpenses.reduce((acc, item) => {
@@ -65,9 +62,6 @@ function BudgetProgressBars({
             </div>
           );
         })}
-
-      {/* Configurable button for navigation*/}
-      <Button path={buttonPath}>{buttonLabel}</Button>
     </div>
   );
 }
