@@ -16,17 +16,18 @@ function App() {
   const [transactions, setTransactions] = useState([])
   const [budgetCategories, setBudgetCategories] = useState([]);
   const [incomeTotal, setIncomeTotal] = useState(0);
-  const [balance, setBalance] = useState(0);
   const [expensesByCategory, setExpensesByCategory] = useState({});
   const [monthlyData, setMonthlyData] = useState({});
 
-  // Airtable API constants
+  // Loading states
+  const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+
   const baseId = import.meta.env.VITE_BASE_ID;
   const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`
   const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${import.meta.env.VITE_TABLE_CATEGORIES}`;
   const token = `Bearer ${import.meta.env.VITE_PAT}`
 
-  // Helper function to create fetch options
   function createOptions(method, records) {
     const opts = {
       method,
@@ -41,38 +42,38 @@ function App() {
     return opts
   }
 
-  // Fetch transactions from Airtable on mount
   useEffect(() => {
     async function fetchTodos() {
       try {
+        setIsTransactionsLoading(true);
         const resp = await fetch(url, createOptions('GET'))
         if (!resp.ok) throw new Error(resp.statusText)
         const { records } = await resp.json()
 
-        // Include the Airtable record ID
         const simplified = records.map((record) => ({
-          id: record.id,  //  Airtable record ID needed for editing
+          id: record.id,
           ...record.fields
         }))
 
         setTransactions(simplified)
       } catch (error) {
         console.error('Error fetching transactions:', error)
+      } finally {
+        setIsTransactionsLoading(false);
       }
     }
 
     fetchTodos()
   }, [url, token])
 
-  // Fetch budget categories from Airtable on mount
   useEffect(() => {
     async function fetchTodos() {
       try {
+        setIsCategoriesLoading(true);
         const resp = await fetch(categoriesUrl, createOptions('GET'))
         if (!resp.ok) throw new Error(resp.statusText)
         const { records } = await resp.json()
 
-        //  include Airtable's id, and fields name and amount in a single object
         const simplified = records.map(record => ({
           id: record.id,
           ...record.fields
@@ -81,78 +82,32 @@ function App() {
         setBudgetCategories(simplified);
       } catch (error) {
         console.error('Error fetching budget categories:', error);
+      } finally {
+        setIsCategoriesLoading(false);
       }
     }
 
     fetchTodos();
   }, [categoriesUrl, token]);
 
-  // Add a new category
-  const handleAddCategory = async (newCategory) => {
-    const fields = { name: newCategory.name, amount: newCategory.amount }
-
-    // Obtain the json transalation
-    const options = createOptions('POST', [{ fields }]);
-
-    try {
-      // Add the category to Airtable
-      const resp = await fetch(categoriesUrl, options);
-    }
-    catch (error) {
-    }
-  }
-
-  // add a new expense (transaction)
   const handleAddExpense = async (newExpense) => {
     const fields = {
-      Date: newExpense.Date,        
+      Date: newExpense.Date,
       Amount: newExpense.Amount,
       Category: newExpense.Category,
       Description: newExpense.Description
     }
 
-    // Obtain the json transalation
     const options = createOptions('POST', [{ fields }]);
 
     try {
-      // Add the category to Airtable
       const resp = await fetch(url, options);
     }
-    catch (error) {
-    }
+    catch (error) { }
   }
 
-  //handleAddExpense();
-
-  /*   // edit categories
-    const handleEditCategory = async (editedCategories) => {
-      const records = editedCategories.map(category => ({
-        id: category.id,
-        fields: {
-          name: category.name,
-          amount: category.amount,
-        },
-      }));
-  
-      // Pass the array directly
-      const options = createOptions('PATCH', records);
-  
-      try {
-        const resp = await fetch(categoriesUrl, options);
-        if (!resp.ok) throw new Error(`Failed to update: ${resp.status}`);
-        const data = await resp.json();
-        console.log('Updated categories:', data);
-      } catch (error) {
-        console.error('Error updating categories:', error);
-      }
-    }; */
-
-
-  // Edit an existing expense by ID
   async function handleEditExpense({ id, fields }) {
-
     const options = createOptions('PATCH', [{ id, fields }]);
-
     const resp = await fetch(url, options);
     if (!resp.ok) throw new Error(`Failed to edit expense: ${resp.statusText}`);
     const json = await resp.json();
@@ -161,31 +116,23 @@ function App() {
 
   const monthOptions = useMemo(() => {
     return Array.from({ length: 6 }, (_, i) => {
-      const date = subMonths(new Date(), i); // start from i = 0 for current month
+      const date = subMonths(new Date(), i);
       return {
         name: format(date, 'MMMM yyyy'),
         value: { month: getMonth(date), year: getYear(date) },
       };
-    }).reverse(); // so current month shows up last
+    }).reverse();
   }, []);
 
   useEffect(() => {
-    if (!transactions || transactions.length === 0) {
-      setMonthlyData({});
-      return;
-    }
-
     const result = {};
 
     monthOptions.forEach(({ name, value }) => {
-      // For each month, sum income and expenses using reduce
       const { income, expense } = transactions.reduce(
         (acc, txn) => {
           if (!txn.Date || txn.Amount == null) return acc;
-
           const amount = Number(txn.Amount);
           if (isNaN(amount) || amount === 0) return acc;
-
           const txnDate = new Date(txn.Date);
           if (isNaN(txnDate.getTime())) return acc;
 
@@ -193,11 +140,8 @@ function App() {
             txnDate.getMonth() === value.month &&
             txnDate.getFullYear() === value.year
           ) {
-            if (amount > 0) {
-              acc.income += amount;
-            } else if (amount < 0) {
-              acc.expense += Math.abs(amount);
-            }
+            if (amount > 0) acc.income += amount;
+            else acc.expense += Math.abs(amount);
           }
           return acc;
         },
@@ -214,19 +158,16 @@ function App() {
     setMonthlyData(result);
   }, [transactions, monthOptions]);
 
-  //Obtain the total income for the current month
-  //Note: Income is in the transactions list
   useEffect(() => {
     if (!transactions || transactions.length === 0) {
       setIncomeTotal(0);
       return;
     }
-    // Get the current month and year
+
     const now = new Date();
     const currentMonth = getMonth(now);
     const currentYear = getYear(now);
 
-    // Calculate total income for the current month
     const totalIncome = transactions.reduce((acc, txn) => {
       const dateStr = txn.Date || txn.date;
       const amount = Number(txn.Amount || txn.amount || 0);
@@ -242,24 +183,6 @@ function App() {
     setIncomeTotal(totalIncome);
   }, [transactions]);
 
-  // Obtain the total balance in the account
-  useEffect(() => {
-    if (!transactions || transactions.length === 0) {
-      setBalance(0);
-      return;
-    }
-
-    // Calculate total balance by summing all amounts
-    const totalBalance = transactions.reduce((acc, txn) => {
-      const amount = Number(txn.Amount || txn.amount || 0);
-      return acc + amount;
-    }, 0);
-
-    setBalance(totalBalance);
-  }, [transactions]);
-
-  // Calculate amounts by category on each month
-
   useEffect(() => {
     if (!transactions || transactions.length === 0) return;
 
@@ -271,7 +194,6 @@ function App() {
       const txnDate = new Date(txn.Date || txn.date);
       const monthLabel = format(txnDate, 'MMMM yyyy');
 
-      // Only process expenses (negative amounts)
       if (amount < 0) {
         if (!result[monthLabel]) {
           result[monthLabel] = {};
@@ -280,7 +202,6 @@ function App() {
       }
     });
 
-    // Convert inner objects to arrays like [{ name, amount }]
     const formattedResult = {};
     for (const [month, categories] of Object.entries(result)) {
       formattedResult[month] = Object.entries(categories).map(([name, amount]) => ({
@@ -299,17 +220,58 @@ function App() {
   const categoryNames = getCategoryNames(budgetCategories);
   const currentMonthLabel = format(new Date(), 'MMMM yyyy');
   const remaining = monthlyData[currentMonthLabel]?.monthlyRemaining || 0;
+
   return (
     <>
       <Header header={header} />
       <Navigation />
       <Routes>
-        <Route path="/" element={<Dashboard transactions={transactions} monthOptions={monthOptions}
-          incomeTotal={incomeTotal} balance={remaining} expensesByCategory={expensesByCategory} />} />
-        <Route path="/transactions" element={<Transactions transactions={transactions} handleEditExpense={handleEditExpense} categoryNames={categoryNames} />} />
-        <Route path="/budget/*" element={<Budget incomeData={monthlyData} categoryData={expensesByCategory} budgetCategories={budgetCategories} />} />
-        <Route path='/addExpense' element={<AddExpenseForm handleAddExpense={handleAddExpense} categoryNames={categoryNames} />} />
-      </Routes></>
+        <Route
+          path="/"
+          element={
+            <Dashboard
+              transactions={transactions}
+              monthOptions={monthOptions}
+              incomeTotal={incomeTotal}
+              balance={remaining}
+              expensesByCategory={expensesByCategory}
+              isLoading={isTransactionsLoading}
+            />
+          }
+        />
+        <Route
+          path="/transactions"
+          element={
+            <Transactions
+              transactions={transactions}
+              handleEditExpense={handleEditExpense}
+              categoryNames={categoryNames}
+              isLoading={isTransactionsLoading}
+            />
+          }
+        />
+        <Route
+          path="/budget/*"
+          element={
+            <Budget
+              incomeData={monthlyData}
+              categoryData={expensesByCategory}
+              budgetCategories={budgetCategories}
+              isLoading={isCategoriesLoading || isTransactionsLoading}
+            />
+          }
+        />
+        <Route
+          path="/addExpense"
+          element={
+            <AddExpenseForm
+              handleAddExpense={handleAddExpense}
+              categoryNames={categoryNames}
+            />
+          }
+        />
+      </Routes>
+    </>
   )
 }
 
