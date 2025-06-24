@@ -1,4 +1,4 @@
-import styles from './BudgetProgressBars.module.css';
+import styles from "./BudgetProgressBars.module.css";
 
 /**
  * BudgetProgressBars Component
@@ -16,7 +16,7 @@ import styles from './BudgetProgressBars.module.css';
 function BudgetProgressBars({
   actualExpenses = [],
   budgetCategories = [],
-  heading = 'Budget Usage',        // default heading
+  heading = "Budget Usage", // default heading
 }) {
   // Map actual expenses by category name for quick lookup
   const expenseMap = actualExpenses.reduce((acc, item) => {
@@ -30,24 +30,28 @@ function BudgetProgressBars({
 
       {/* Loop through each budget category except "Income" */}
       {budgetCategories
-        .filter((item) => item.name !== 'Income')
+        .filter((item) => item.name !== "Income")
         .map(({ name, amount: budgetAmount }) => {
-          const spent = expenseMap[name] || 0;               // amount spent in this category
-          const percent = (spent / budgetAmount) * 100;      // calculate percent used
-          const isOverBudget = spent > budgetAmount;         // flag if over budget
+          const spent = expenseMap[name] || 0; // amount spent in this category
+          const percent = (spent / budgetAmount) * 100; // calculate percent used
+          const isOverBudget = spent > budgetAmount; // flag if over budget
 
           return (
             <div key={name} className={styles.category}>
               <div className={styles.labelRow}>
                 <span>{name}</span>
-                <span>${spent.toFixed(2)} / ${budgetAmount}</span>
+                <span>
+                  ${spent.toFixed(2)} / ${budgetAmount}
+                </span>
               </div>
 
               {/* Progress bar container */}
               <div className={styles.barContainer}>
                 {/* Fill bar based on percent (capped at 100%) */}
                 <div
-                  className={`${styles.barFill} ${isOverBudget ? styles.over : ''}`}
+                  className={`${styles.barFill} ${
+                    isOverBudget ? styles.over : ""
+                  }`}
                   style={{ width: `${Math.min(percent, 100)}%` }}
                 ></div>
 

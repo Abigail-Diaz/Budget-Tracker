@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { parseISO } from 'date-fns';
-import styles from './TransactionList.module.css';
-import Button from './Button.jsx';
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { parseISO } from "date-fns";
+import styles from "./TransactionList.module.css";
+import Button from "./Button.jsx";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -20,7 +20,7 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
   const [isSaving, setIsSaving] = useState(false); // Saving state
   const [filteredTransactions, setFilteredTransactions] = useState([]);
 
-  const pageParam = parseInt(searchParams.get('page')) || 1;
+  const pageParam = parseInt(searchParams.get("page")) || 1;
   const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
   const currentPage = Math.max(1, Math.min(pageParam, totalPages || 1));
 
@@ -57,7 +57,7 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
       Date: txn.Date,
       Amount: txn.Amount,
       Category: txn.Category,
-      Description: txn.Description || '',
+      Description: txn.Description || "",
     });
   };
 
@@ -87,13 +87,13 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
       };
 
       // Find the original transaction to get its ID
-      const originalTransaction = filteredTransactions.find(txn => {
+      const originalTransaction = filteredTransactions.find((txn) => {
         const uniqueId = txn.id || `temp-${filteredTransactions.indexOf(txn)}`;
         return uniqueId === editingId;
       });
 
       if (!originalTransaction || !originalTransaction.id) {
-        throw new Error('Cannot find transaction ID for editing');
+        throw new Error("Cannot find transaction ID for editing");
       }
 
       // Call the parent's edit handler - parent handles optimistic update
@@ -101,10 +101,9 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
 
       setEditingId(null);
       setEditFormData({});
-      
     } catch (err) {
-      console.error('Failed to update transaction:', err);
-      alert('Failed to update transaction. Please try again.');
+      console.error("Failed to update transaction:", err);
+      alert("Failed to update transaction. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -125,7 +124,9 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
       )}
 
       {filteredTransactions.length === 0 ? (
-        <p style={{ color: '#7a739c', fontStyle: 'italic' }}>No transactions to display.</p>
+        <p style={{ color: "#7a739c", fontStyle: "italic" }}>
+          No transactions to display.
+        </p>
       ) : (
         filteredTransactions.map((txn, index) => {
           // Create consistent unique identifier
@@ -134,9 +135,9 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
           const amount = Number(txn.Amount || 0);
           const dateObj = txn.Date ? parseISO(txn.Date) : new Date();
           const formattedDate = dateObj.toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+            year: "numeric",
+            month: "short",
+            day: "numeric",
           });
 
           return (
@@ -162,11 +163,12 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                       className={styles.formInput}
                     >
                       <option value="">Select Category</option>
-                      {categoryNames && categoryNames.map((category, idx) => (
-                        <option key={idx} value={category}>
-                          {category}
-                        </option>
-                      ))}
+                      {categoryNames &&
+                        categoryNames.map((category, idx) => (
+                          <option key={idx} value={category}>
+                            {category}
+                          </option>
+                        ))}
                     </select>
                     <input
                       type="text"
@@ -188,14 +190,14 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                   </div>
 
                   <div className={styles.buttonRow}>
-                    <button 
+                    <button
                       className={styles.saveButton}
-                      onClick={handleSave} 
+                      onClick={handleSave}
                       disabled={isSaving}
                     >
-                      {isSaving ? 'Saving...' : 'Save'}
+                      {isSaving ? "Saving..." : "Save"}
                     </button>
-                    <button 
+                    <button
                       className={styles.cancelButton}
                       onClick={handleCancel}
                     >
@@ -207,17 +209,17 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                 <>
                   <div className={styles.transactionDate}>{formattedDate}</div>
                   <div className={styles.transactionCategory}>
-                    {txn.Category || 'Uncategorized'}
+                    {txn.Category || "Uncategorized"}
                   </div>
                   <div className={styles.transactionDescription}>
-                    {txn.Description || 'No description'}
+                    {txn.Description || "No description"}
                   </div>
                   <div
                     className={`${styles.transactionAmount} ${
                       amount < 0 ? styles.negative : styles.positive
                     }`}
                   >
-                    {amount < 0 ? '-' : '+'}${Math.abs(amount).toFixed(2)}
+                    {amount < 0 ? "-" : "+"}${Math.abs(amount).toFixed(2)}
                   </div>
                 </>
               )}
@@ -229,13 +231,19 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
       {/* Pagination controls */}
       {totalPages > 1 && (
         <div className={styles.paginationControls}>
-          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+          <button
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
             Prev
           </button>
           <span>
             Page {currentPage} of {totalPages}
           </span>
-          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>
+          <button
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
             Next
           </button>
         </div>

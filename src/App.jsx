@@ -1,19 +1,19 @@
-import { useState, useEffect, useMemo } from 'react'
-import './App.css'
+import { useState, useEffect, useMemo } from "react";
+import "./App.css";
 
-import Header from './Header.jsx'
-import Navigation from './Navigation.jsx'
-import Dashboard from './Pages/Dashboard.jsx'
-import Transactions from './Pages/Transactions.jsx'
-import Budget from './Pages/Budget.jsx'
-import AddExpense from './Pages/AddExpense.jsx'
+import Header from "./Header.jsx";
+import Navigation from "./Navigation.jsx";
+import Dashboard from "./Pages/Dashboard.jsx";
+import Transactions from "./Pages/Transactions.jsx";
+import Budget from "./Pages/Budget.jsx";
+import AddExpense from "./Pages/AddExpense.jsx";
 
-import { format, subMonths, getMonth, getYear } from 'date-fns';
-import { Routes, Route } from 'react-router-dom'
+import { format, subMonths, getMonth, getYear } from "date-fns";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
-  const [header, setHeader] = useState('Expense Tracker')
-  const [transactions, setTransactions] = useState([])
+  const [header, setHeader] = useState("Expense Tracker");
+  const [transactions, setTransactions] = useState([]);
   const [budgetCategories, setBudgetCategories] = useState([]);
   const [incomeTotal, setIncomeTotal] = useState(0);
   const [expensesByCategory, setExpensesByCategory] = useState({});
@@ -24,26 +24,38 @@ function App() {
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
   // Error states
-  const [isTransactionsError, setIsTransactionsError] = useState({ state: false, errorMessage: '', error: '' });
-  const [isCategoriesError, setIsCategoriesError] = useState({ state: false, errorMessage: '', error: '' });
+  const [isTransactionsError, setIsTransactionsError] = useState({
+    state: false,
+    errorMessage: "",
+    error: "",
+  });
+  const [isCategoriesError, setIsCategoriesError] = useState({
+    state: false,
+    errorMessage: "",
+    error: "",
+  });
 
   const baseId = import.meta.env.VITE_BASE_ID;
-  const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`
-  const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${import.meta.env.VITE_TABLE_CATEGORIES}`;
-  const token = `Bearer ${import.meta.env.VITE_PAT}`
+  const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${
+    import.meta.env.VITE_TABLE_NAME
+  }`;
+  const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${
+    import.meta.env.VITE_TABLE_CATEGORIES
+  }`;
+  const token = `Bearer ${import.meta.env.VITE_PAT}`;
 
   function createOptions(method, records) {
     const opts = {
       method,
       headers: {
         Authorization: token,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-    }
+    };
     if (records) {
-      opts.body = JSON.stringify({ records })
+      opts.body = JSON.stringify({ records });
     }
-    return opts
+    return opts;
   }
 
   // Fetch transactions
@@ -51,47 +63,62 @@ function App() {
     async function fetchTodos() {
       try {
         setIsTransactionsLoading(true);
-        const resp = await fetch(url, createOptions('GET'))
+        const resp = await fetch(url, createOptions("GET"));
         if (!resp.ok) {
-          throw new Error(`HTTP ${resp.status}: ${resp.statusText || 'Unknown error'}`);
+          throw new Error(
+            `HTTP ${resp.status}: ${resp.statusText || "Unknown error"}`
+          );
         }
 
-        const { records } = await resp.json()
+        const { records } = await resp.json();
 
         const simplified = records.map((record) => ({
           id: record.id,
-          ...record.fields
-        }))
+          ...record.fields,
+        }));
 
-        setTransactions(simplified)
+        setTransactions(simplified);
       } catch (error) {
-        const message = error?.message?.trim() || error?.statusText || error?.toString();
-        setIsTransactionsError({ state: true, errorMessage: 'Error fetching transactions ', error: message })
+        const message =
+          error?.message?.trim() || error?.statusText || error?.toString();
+        setIsTransactionsError({
+          state: true,
+          errorMessage: "Error fetching transactions ",
+          error: message,
+        });
       } finally {
         setIsTransactionsLoading(false);
       }
     }
-    fetchTodos()
-  }, [url, token])
+    fetchTodos();
+  }, [url, token]);
 
   // Fetch budget categories
   useEffect(() => {
     async function fetchTodos() {
       try {
         setIsCategoriesLoading(true);
-        const resp = await fetch(categoriesUrl, createOptions('GET'))
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText || 'Unknown error'}`);
-        const { records } = await resp.json()
+        const resp = await fetch(categoriesUrl, createOptions("GET"));
+        if (!resp.ok)
+          throw new Error(
+            `HTTP ${resp.status}: ${resp.statusText || "Unknown error"}`
+          );
+        const { records } = await resp.json();
 
-        const simplified = records.map(record => ({
+        const simplified = records.map((record) => ({
           id: record.id,
-          ...record.fields
+          ...record.fields,
         }));
 
         setBudgetCategories(simplified);
       } catch (error) {
-        const message = error?.message?.trim() || error?.statusText || error?.toString();
-        setIsCategoriesError({ state: true, errorMessage: 'Error fetching budget categories', error: message })
+        const message =
+          error?.message?.trim() || error?.statusText || error?.toString();
+        setIsCategoriesError({
+          state: true,
+          errorMessage: "Error fetching budget categories",
+          error: message,
+        });
       } finally {
         setIsCategoriesLoading(false);
       }
@@ -102,7 +129,7 @@ function App() {
 
   // Optimistic update for adding expenses
   const handleAddExpense = async (newExpense) => {
-    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const tempId = `temp-${Date.now()}}`;
 
     const tempTransaction = {
       id: tempId,
@@ -113,50 +140,54 @@ function App() {
     };
 
     try {
-      setTransactions(prevTransactions => [tempTransaction, ...prevTransactions]);
+      setTransactions((prevTransactions) => [
+        tempTransaction,
+        ...prevTransactions,
+      ]);
 
       const fields = {
         Date: newExpense.Date,
         Amount: newExpense.Amount,
         Category: newExpense.Category,
-        Description: newExpense.Description
-      }
+        Description: newExpense.Description,
+      };
 
-      const options = createOptions('POST', [{ fields }]);
+      const options = createOptions("POST", [{ fields }]);
       const resp = await fetch(url, options);
       const data = await resp.json();
       const saved = data.records[0];
 
-      setTransactions(prevTransactions =>
-        prevTransactions.map(txn =>
+      setTransactions((prevTransactions) =>
+        prevTransactions.map((txn) =>
           txn.id === tempId ? { id: saved.id, ...saved.fields } : txn
         )
       );
     } catch (error) {
-      setTransactions(prevTransactions =>
-        prevTransactions.filter(txn => txn.id !== tempId)
+      setTransactions((prevTransactions) =>
+        prevTransactions.filter((txn) => txn.id !== tempId)
       );
       throw error;
     }
-  }
+  };
 
   // Optimistic update for editing expenses
   async function handleEditExpense({ id, fields }) {
-    const originalTransaction = transactions.find(txn => txn.id === id);
-    if (!originalTransaction) throw new Error('Transaction not found');
+    const originalTransaction = transactions.find((txn) => txn.id === id);
+    if (!originalTransaction) throw new Error("Transaction not found");
 
     try {
-      setTransactions(prev =>
-        prev.map(txn => (txn.id === id ? { ...txn, ...fields } : txn))
+      setTransactions((prev) =>
+        prev.map((txn) => (txn.id === id ? { ...txn, ...fields } : txn))
       );
 
-      const options = createOptions('PATCH', [{ id, fields }]);
+      const options = createOptions("PATCH", [{ id, fields }]);
       const resp = await fetch(url, options);
-      if (!resp.ok) throw new Error(`Failed to edit expense: ${resp.statusText}`);
+      if (!resp.ok)
+        throw new Error(`Failed to edit expense: ${resp.statusText}`);
       await resp.json();
     } catch (error) {
-      setTransactions(prev =>
-        prev.map(txn => (txn.id === id ? originalTransaction : txn))
+      setTransactions((prev) =>
+        prev.map((txn) => (txn.id === id ? originalTransaction : txn))
       );
       throw error;
     }
@@ -166,7 +197,7 @@ function App() {
     return Array.from({ length: 6 }, (_, i) => {
       const date = subMonths(new Date(), i);
       return {
-        name: format(date, 'MMMM yyyy'),
+        name: format(date, "MMMM yyyy"),
         value: { month: getMonth(date), year: getYear(date) },
       };
     }).reverse();
@@ -222,7 +253,10 @@ function App() {
       if (amount <= 0) return acc;
 
       const dateObj = new Date(dateStr);
-      if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
+      if (
+        dateObj.getMonth() === currentMonth &&
+        dateObj.getFullYear() === currentYear
+      ) {
         return acc + amount;
       }
       return acc;
@@ -238,35 +272,37 @@ function App() {
 
     transactions.forEach((txn) => {
       const amount = Number(txn.Amount || txn.amount || 0);
-      const category = txn.Category || txn.category || 'Other';
+      const category = txn.Category || txn.category || "Other";
       const txnDate = new Date(txn.Date || txn.date);
-      const monthLabel = format(txnDate, 'MMMM yyyy');
+      const monthLabel = format(txnDate, "MMMM yyyy");
 
       if (amount < 0) {
         if (!result[monthLabel]) {
           result[monthLabel] = {};
         }
-        result[monthLabel][category] = (result[monthLabel][category] || 0) + Math.abs(amount);
+        result[monthLabel][category] =
+          (result[monthLabel][category] || 0) + Math.abs(amount);
       }
     });
 
     const formattedResult = {};
     for (const [month, categories] of Object.entries(result)) {
-      formattedResult[month] = Object.entries(categories).map(([name, amount]) => ({
-        name,
-        amount: parseFloat(amount.toFixed(2)),
-      }));
+      formattedResult[month] = Object.entries(categories).map(
+        ([name, amount]) => ({
+          name,
+          amount: parseFloat(amount.toFixed(2)),
+        })
+      );
     }
-
     setExpensesByCategory(formattedResult);
   }, [transactions]);
 
   function getCategoryNames(budgetCategories) {
-    return budgetCategories.map(category => category.name);
+    return budgetCategories.map((category) => category.name);
   }
 
   const categoryNames = getCategoryNames(budgetCategories);
-  const currentMonthLabel = format(new Date(), 'MMMM yyyy');
+  const currentMonthLabel = format(new Date(), "MMMM yyyy");
   const remaining = monthlyData[currentMonthLabel]?.monthlyRemaining || 0;
 
   return (
@@ -325,7 +361,7 @@ function App() {
         />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,8 +1,15 @@
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
-const colors = ['#6a0dad', '#9b59b6', '#b39ddb', '#d1c4e9'];
+const colors = ["#6a0dad", "#9b59b6", "#b39ddb", "#d1c4e9"];
 
-// Pie chart to display amounts 
+// Pie chart to display amounts
 function PieChartExpense({ dataObject, label }) {
   if (!dataObject) return null;
 
@@ -13,8 +20,8 @@ function PieChartExpense({ dataObject, label }) {
   }));
 
   return (
-    <div style={{ width: '100%', maxWidth: 600, margin: 'auto' }}>
-      <h3 style={{ textAlign: 'center' }}>{label}</h3>
+    <div style={{ width: "100%", maxWidth: 600, margin: "auto" }}>
+      <h3 style={{ textAlign: "center" }}>{label}</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -27,7 +34,10 @@ function PieChartExpense({ dataObject, label }) {
             label
           >
             {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={colors[index % colors.length]}
+              />
             ))}
           </Pie>
           <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -7,18 +7,18 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from 'recharts';
-import Select from 'react-select';
-import { format, subMonths, getMonth, getYear } from 'date-fns';
+} from "recharts";
+import Select from "react-select";
+import { format, subMonths, getMonth, getYear } from "date-fns";
 
 // Colors for the graph lines
 const graphColors = [
-  '#f48fb1', // pink
-  '#81d4fa', // light blue
-  '#aed581', // light green
-  '#fff176', // yellow
-  '#ffab91', // orange
-  '#ce93d8', // purple
+  "#f48fb1", // pink
+  "#81d4fa", // light blue
+  "#aed581", // light green
+  "#fff176", // yellow
+  "#ffab91", // orange
+  "#ce93d8", // purple
 ];
 
 // Generate list for the last 6 months (excluding current month)
@@ -27,7 +27,7 @@ const monthOptions = Array.from({ length: 6 }, (_, i) => {
   const month = getMonth(date); // 0-based
   const year = getYear(date);
   return {
-    label: format(date, 'MMMM yyyy'),
+    label: format(date, "MMMM yyyy"),
     value: { month, year },
     color: graphColors[i % graphColors.length],
   };
@@ -48,16 +48,16 @@ function MonthlyExpenseGraph({ transactions }) {
   const currentDate = new Date();
   const currentMonth = getMonth(currentDate); // 0-based
   const currentYear = getYear(currentDate);
-  const currentMonthLabel = format(currentDate, 'MMMM');
+  const currentMonthLabel = format(currentDate, "MMMM");
 
   useEffect(() => {
     if (!transactions || transactions.length === 0) return;
 
     // Include current month always, and ensure no duplicates
     const currentMonthObj = {
-      label: format(currentDate, 'MMMM yyyy'),
+      label: format(currentDate, "MMMM yyyy"),
       value: { month: currentMonth, year: currentYear },
-      color: '#210629',
+      color: "#210629",
     };
 
     const allSelected = [currentMonthObj, ...selectedMonths];
@@ -102,11 +102,11 @@ function MonthlyExpenseGraph({ transactions }) {
 
       return {
         key,
-        label: format(new Date(year, month), 'MMMM yyyy'),
+        label: format(new Date(year, month), "MMMM yyyy"),
         color:
           month === currentMonth && year === currentYear
-            ? '#210629'
-            : colorByMonth[key] || '#ccc',
+            ? "#210629"
+            : colorByMonth[key] || "#ccc",
         data: lineData,
       };
     });
@@ -116,45 +116,47 @@ function MonthlyExpenseGraph({ transactions }) {
 
   // Styles for the react-select dropdown
   const selectStyles = {
-    control: (styles) => ({ ...styles, marginBottom: '1rem' }),
+    control: (styles) => ({ ...styles, marginBottom: "1rem" }),
     option: (styles, { isFocused }) => ({
       ...styles,
-      backgroundColor: isFocused ? '#f0e6fa' : 'white',
-      color: 'black',
-      display: 'flex',
-      alignItems: 'center',
+      backgroundColor: isFocused ? "#f0e6fa" : "white",
+      color: "black",
+      display: "flex",
+      alignItems: "center",
     }),
     singleValue: (styles) => ({
       ...styles,
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
     }),
     multiValue: (styles, { data }) => ({
       ...styles,
       backgroundColor: data.color,
-      color: '#000',
-      padding: '2px 4px',
-      borderRadius: '4px',
+      color: "#000",
+      padding: "2px 4px",
+      borderRadius: "4px",
     }),
   };
 
   return (
     <div
       style={{
-        width: '90%',
-        backgroundColor: '#ffffff',
-        fontFamily: 'roboto',
+        width: "90%",
+        backgroundColor: "#ffffff",
+        fontFamily: "roboto",
         zIndex: 4,
-        borderRadius: '1.5rem',
-        padding: '1rem',
-        textAlign: 'left',
+        borderRadius: "1.5rem",
+        padding: "1rem",
+        textAlign: "left",
       }}
     >
-      <h3 style={{ marginBottom: '0.5rem', fontSize: '2rem' }}>
+      <h3 style={{ marginBottom: "0.5rem", fontSize: "2rem" }}>
         {currentMonthLabel}'s Expenses
       </h3>
 
-      <p style={{ fontSize: '1.7rem', fontWeight: 'bold', marginBottom: '2rem' }}>
+      <p
+        style={{ fontSize: "1.7rem", fontWeight: "bold", marginBottom: "2rem" }}
+      >
         ${totalCurrentMonth.toFixed(2)}
       </p>
 
@@ -167,13 +169,13 @@ function MonthlyExpenseGraph({ transactions }) {
         styles={selectStyles}
         getOptionValue={(e) => `${e.value.year}-${e.value.month}`}
         getOptionLabel={(e) => (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <div
               style={{
                 width: 10,
                 height: 10,
                 backgroundColor: e.color,
-                borderRadius: '50%',
+                borderRadius: "50%",
               }}
             ></div>
             {e.label}
@@ -198,7 +200,7 @@ function MonthlyExpenseGraph({ transactions }) {
               dataKey="amount"
               name={series.label}
               stroke={series.color}
-              strokeWidth={series.color === '#210629' ? 3 : 2}
+              strokeWidth={series.color === "#210629" ? 3 : 2}
               dot={false}
             />
           ))}

@@ -1,14 +1,14 @@
-import React from 'react';
-import styles from './RecentExpensesList.module.css';
+import React from "react";
+import styles from "./RecentExpensesList.module.css";
 
-import foodIcon from './assets/Icons/food.png';
-import travelIcon from './assets/Icons/travel.png';
-import shoppingIcon from './assets/Icons/shopping.png';
-import utilityIcon from './assets/Icons/utilities.png';
-import entertainmentIcon from './assets/Icons/entertainment.png';
-import healthIcon from './assets/Icons/health.png';
-import groceryIcon from './assets/Icons/groceries.png';
-import otherIcon from './assets/Icons/other.png';
+import foodIcon from "./assets/Icons/food.png";
+import travelIcon from "./assets/Icons/travel.png";
+import shoppingIcon from "./assets/Icons/shopping.png";
+import utilityIcon from "./assets/Icons/utilities.png";
+import entertainmentIcon from "./assets/Icons/entertainment.png";
+import healthIcon from "./assets/Icons/health.png";
+import groceryIcon from "./assets/Icons/groceries.png";
+import otherIcon from "./assets/Icons/other.png";
 
 // Map category names to icons
 const categoryIcons = {
@@ -35,7 +35,7 @@ function RecentExpensesList({ expensesByCategory }) {
         <div key={name} className={styles.categoryItem}>
           <div className={styles.categoryHeader}>
             <img
-              src={categoryIcons[name] || categoryIcons['Other']}
+              src={categoryIcons[name] || categoryIcons["Other"]}
               alt={name}
               className={styles.categoryIcon}
             />

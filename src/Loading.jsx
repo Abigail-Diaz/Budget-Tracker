@@ -1,7 +1,6 @@
+import styles from "./Loading.module.css";
 
-import styles from './Loading.module.css';
-
-function Loading({ message = 'Loading...' }) {
+function Loading({ message = "Loading..." }) {
   return (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
