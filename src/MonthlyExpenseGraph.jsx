@@ -1,5 +1,3 @@
-// Component to display monthly expense graph with selectable months
-
 import { useEffect, useState } from 'react';
 import {
   LineChart,
@@ -26,53 +24,57 @@ const graphColors = [
 // Generate list for the last 6 months (excluding current month)
 const monthOptions = Array.from({ length: 6 }, (_, i) => {
   const date = subMonths(new Date(), i + 1);
+  const month = getMonth(date); // 0-based
+  const year = getYear(date);
   return {
     label: format(date, 'MMMM yyyy'),
-    value: { month: getMonth(date), year: getYear(date) },
+    value: { month, year },
     color: graphColors[i % graphColors.length],
   };
 }).reverse();
 
-
-// Map each option to its color
+// Map each option to its color using `${year}-${month}` as key
 const colorByMonth = monthOptions.reduce((acc, option) => {
-  acc[`${option.value.month}-${option.value.year}`] = option.color;
+  const { month, year } = option.value;
+  acc[`${year}-${month}`] = option.color;
   return acc;
 }, {});
 
-function MonthlyExpenseGraph({ transactions}) {
-
-  // States to manage selected months and series data
+function MonthlyExpenseGraph({ transactions }) {
   const [selectedMonths, setSelectedMonths] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [totalCurrentMonth, setTotalCurrentMonth] = useState(0);
 
-  // Obtain real-time current month and year
-  // this ensures the current month is always included in the graph
   const currentDate = new Date();
-  const currentMonth = getMonth(currentDate);
+  const currentMonth = getMonth(currentDate); // 0-based
   const currentYear = getYear(currentDate);
   const currentMonthLabel = format(currentDate, 'MMMM');
 
   useEffect(() => {
     if (!transactions || transactions.length === 0) return;
 
-    // Always include the current month in the graph, even if not selected
-    // This holds the months that will be displayed in the graph
-    const enforcedSelection = [
-      {
-        label: format(currentDate, 'MMMM yyyy'),
-        value: { month: currentMonth, year: currentYear },
-        color: '#210629',
-      },
-      ...selectedMonths,
-    ];
+    // Include current month always, and ensure no duplicates
+    const currentMonthObj = {
+      label: format(currentDate, 'MMMM yyyy'),
+      value: { month: currentMonth, year: currentYear },
+      color: '#210629',
+    };
+
+    const allSelected = [currentMonthObj, ...selectedMonths];
+    const uniqueMap = new Map();
+
+    for (const m of allSelected) {
+      const { month, year } = m.value;
+      const key = `${year}-${month}`;
+      if (!uniqueMap.has(key)) uniqueMap.set(key, m);
+    }
+
+    const enforcedSelection = Array.from(uniqueMap.values());
 
     const groupedData = enforcedSelection.map(({ value }) => {
       const { month, year } = value;
       const dailyTotals = {};
 
-      // Accumulate daily totals for the given month/year
       transactions.forEach((txn) => {
         const dateStr = txn.Date || txn.date;
         const amount = Number(txn.Amount || txn.amount || 0);
@@ -85,7 +87,6 @@ function MonthlyExpenseGraph({ transactions}) {
         }
       });
 
-      // Build cumulative line data for the chart
       let runningTotal = 0;
       const days = Array.from({ length: 31 }, (_, i) => i + 1);
       const lineData = days.map((day) => {
@@ -93,26 +94,27 @@ function MonthlyExpenseGraph({ transactions}) {
         return { day, amount: parseFloat(runningTotal.toFixed(2)) };
       });
 
-      // Store the total only for the current month
       if (month === currentMonth && year === currentYear) {
         setTotalCurrentMonth(runningTotal);
       }
 
-      // return the series data for the graph
+      const key = `${year}-${month}`; // always 0-based for consistency
+
       return {
-        key: `${month}-${year}`,
+        key,
         label: format(new Date(year, month), 'MMMM yyyy'),
-        color: value.month === currentMonth && value.year === currentYear
-          ? '#210629'
-          : colorByMonth[`${month}-${year}`] || '#ccc',
+        color:
+          month === currentMonth && year === currentYear
+            ? '#210629'
+            : colorByMonth[key] || '#ccc',
         data: lineData,
       };
     });
 
     setSeriesData(groupedData);
-  }, [transactions, selectedMonths]);
+  }, [transactions, selectedMonths, currentMonth, currentYear]);
 
-  // Reusable select style object
+  // Styles for the react-select dropdown
   const selectStyles = {
     control: (styles) => ({ ...styles, marginBottom: '1rem' }),
     option: (styles, { isFocused }) => ({
@@ -138,7 +140,6 @@ function MonthlyExpenseGraph({ transactions}) {
 
   return (
     <div
-      // Main container styling for the expense graph card
       style={{
         width: '90%',
         backgroundColor: '#ffffff',
@@ -149,20 +150,22 @@ function MonthlyExpenseGraph({ transactions}) {
         textAlign: 'left',
       }}
     >
-      {/* Header showing which month’s expenses are being displayed */}
-      <h3 style={{ marginBottom: '0.5rem', fontSize: '2rem' }}>{currentMonthLabel}'s Expenses</h3>
-      {/* Current month’s total expense amount */}
+      <h3 style={{ marginBottom: '0.5rem', fontSize: '2rem' }}>
+        {currentMonthLabel}'s Expenses
+      </h3>
+
       <p style={{ fontSize: '1.7rem', fontWeight: 'bold', marginBottom: '2rem' }}>
         ${totalCurrentMonth.toFixed(2)}
       </p>
 
-      {/* Month selector dropdown using react-select */}
+      {/* Month selector with unique option value keys */}
       <Select
         isMulti
         options={monthOptions}
         value={selectedMonths}
         onChange={setSelectedMonths}
         styles={selectStyles}
+        getOptionValue={(e) => `${e.value.year}-${e.value.month}`}
         getOptionLabel={(e) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div
@@ -180,18 +183,13 @@ function MonthlyExpenseGraph({ transactions}) {
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart>
-          {/* X-axis for days of the month */}
           <XAxis dataKey="day" type="number" domain={[1, 31]} />
-          {/* Y-axis for cumulative expense values */}
           <YAxis />
-          {/* Tooltip to show details on hover */}
           <Tooltip
             formatter={(value) => `$${value.toFixed(2)}`}
             labelFormatter={(label) => `Day ${label}`}
           />
-          {/* Legend showing which line corresponds to which month */}
           <Legend />
-          {/* Render a line for each month (current + selected) */}
           {seriesData.map((series) => (
             <Line
               key={series.key}
@@ -200,7 +198,7 @@ function MonthlyExpenseGraph({ transactions}) {
               dataKey="amount"
               name={series.label}
               stroke={series.color}
-              strokeWidth={series.color === '#5a2091' ? 3 : 2}
+              strokeWidth={series.color === '#210629' ? 3 : 2}
               dot={false}
             />
           ))}
