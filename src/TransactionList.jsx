@@ -13,7 +13,7 @@ const ITEMS_PER_PAGE = 20;
  * Allows editing individual transactions by clicking on them.
  * Shows paginated view using ?page= query param.
  */
-function TransactionList({ transactions, handleEditExpense }) {
+function TransactionList({ transactions, handleEditExpense, categoryNames }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [editingId, setEditingId] = useState(null); // ID of the currently edited transaction
   const [editFormData, setEditFormData] = useState({}); // Form state for current edit
@@ -24,7 +24,7 @@ function TransactionList({ transactions, handleEditExpense }) {
   const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
   const currentPage = Math.max(1, Math.min(pageParam, totalPages || 1));
 
-  // Slice the transactions for current page
+  // Update filtered transactions whenever transactions change
   useEffect(() => {
     if (!transactions || transactions.length === 0) {
       setFilteredTransactions([]);
@@ -96,9 +96,23 @@ function TransactionList({ transactions, handleEditExpense }) {
         throw new Error('Cannot find transaction ID for editing');
       }
 
+      // Call the parent's edit handler and wait for it to complete
       await handleEditExpense({ id: originalTransaction.id, fields });
+      
+      // Update the local state immediately
+      setFilteredTransactions(prevTransactions => 
+        prevTransactions.map(txn => {
+          const uniqueId = txn.id || `temp-${prevTransactions.indexOf(txn)}`;
+          if (uniqueId === editingId) {
+            return { ...txn, ...fields };
+          }
+          return txn;
+        })
+      );
+
       setEditingId(null);
       setEditFormData({});
+      
     } catch (err) {
       console.error('Failed to update transaction:', err);
       alert('Failed to update transaction. Please try again.');
