@@ -1,0 +1,75 @@
+
+.formWrapper {
+  background-color: #f7f7fa; /* very light gray */
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+  max-width: 500px;
+}
+
+.formHeading {
+  text-align: center;
+  color: #5a2091;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.formGroup {
+  margin-bottom: 1.2rem;
+}
+
+.formLabel {
+  display: block;
+  font-weight: 600;
+  color: #4a2e6f;
+  margin-bottom: 0.5rem;
+}
+
+.formInput,
+.formSelect {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #d1c4e9;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: #a678f2;
+  box-shadow: 0 0 0 2px rgba(90, 32, 145, 0.2);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #5a2091;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: #48177a;
+}
+
+.successMessage {
+  text-align: center;
+  margin-top: 1rem;
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.errorMessage {
+  text-align: center;
+  margin-top: 1rem;
+  color: #e74c3c;
+  font-weight: 600;
+}
