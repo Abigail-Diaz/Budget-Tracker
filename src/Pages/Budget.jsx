@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Card from "../Card.jsx";
-import PieChartExpense from "../PieChart";
+import PieChartExpense from "../PieChartExpense.jsx";
 import BarChart from '../BarGraph.jsx';
 import styles from "./Budget.module.css";
 import BudgetProgressBars from '../BudgetProgressBars.jsx';
