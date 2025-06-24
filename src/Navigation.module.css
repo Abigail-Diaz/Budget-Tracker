@@ -41,3 +41,17 @@ body {
   color: #f2eff5;
   font-weight: 600;
 }
+
+.navLink {
+  color: #ebe5e5;
+  margin-top: 10px;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out, font-weight 0.2s;
+  font-weight: bold;
+}
+
+.active {
+  color: #ffffff;
+  border-bottom: 3px solid #ffffff;
+  padding-bottom: 4px;
+}
