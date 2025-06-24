@@ -23,10 +23,15 @@ function App() {
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
+  // Error states
+  const [isTransactionsError, setIsTransactionsError] = useState({ state: false, errorMessage: '', error: '' });
+  const [isCategoriesError, setIsCategoriesError] = useState(false);
+
+
   const baseId = import.meta.env.VITE_BASE_ID;
   const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`
   const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${import.meta.env.VITE_TABLE_CATEGORIES}`;
-  const token = `Bearer ${import.meta.env.VITE_PAT}`
+  const token = `Bearer ${import.meta.env.VIE_PAT}`
 
   function createOptions(method, records) {
     const opts = {
@@ -47,7 +52,10 @@ function App() {
       try {
         setIsTransactionsLoading(true);
         const resp = await fetch(url, createOptions('GET'))
-        if (!resp.ok) throw new Error(resp.statusText)
+        if (!resp.ok) {
+          throw new Error(`HTTP ${resp.status}: ${resp.statusText || 'Unknown error'}`);
+        }
+
         const { records } = await resp.json()
 
         const simplified = records.map((record) => ({
@@ -57,12 +65,12 @@ function App() {
 
         setTransactions(simplified)
       } catch (error) {
-        console.error('Error fetching transactions:', error)
+        const message = error?.message?.trim() || error?.statusText || error?.toString() || fallbackMessage;
+        setIsTransactionsError({ state: true, errorMessage: 'Error fetching transactions ', error: message })
       } finally {
         setIsTransactionsLoading(false);
       }
     }
-
     fetchTodos()
   }, [url, token])
 
@@ -236,6 +244,7 @@ function App() {
               balance={remaining}
               expensesByCategory={expensesByCategory}
               isLoading={isTransactionsLoading}
+              isError={isTransactionsError}
             />
           }
         />

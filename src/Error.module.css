@@ -1,0 +1,29 @@
+.errorContainer {
+  gap: 12px;
+  padding: 1rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.iconArea {
+  font-size: 1.5rem;
+}
+
+.emoji {
+  font-size: 1.8rem;
+}
+
+.textArea {
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  font-weight: bold;
+  color: #5a4d8c;
+  margin-bottom: 0.25rem;
+}
+
+.detail {
+  font-size: 0.9rem;
+  word-break: break-word;
+}
