@@ -1,6 +1,6 @@
 import styles from './Error.module.css';
 
-function Error({ message, error }) {
+function Error({ message }) {
   return (
     <div className={styles.errorContainer}>
       <div className={styles.iconArea}>
@@ -8,7 +8,6 @@ function Error({ message, error }) {
       </div>
       <div className={styles.textArea}>
         <p className={styles.message}>{message}</p>
-        {error && <p className={styles.detail}>{error}</p>}
       </div>
     </div>
   );
