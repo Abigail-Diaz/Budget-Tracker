@@ -2,7 +2,7 @@
 
 ## Description
 A budget application that allows users to edit and add expenses. The application also provides users to see their expenses in a linear graph over the selected month. 
-The data on the graphs are up to six months in the past, excluding the current month. The app also provides the list of expenses and a budget interface that displays
+The data on the graphs are up to five months in the past, plus the current month. The app also provides the list of expenses and a budget interface that displays
 monthly expense data against budgeted amounts in each category.
 
 ## Installation Instructions
