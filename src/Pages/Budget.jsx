@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Card from "../Card.jsx";
 import PieChartExpense from "../PieChart";
-import BarChart from '../BarChart.jsx';
+import BarChart from '../BarGraph.jsx';
 import styles from "./Budget.module.css";
 import BudgetProgressBars from '../BudgetProgressBars.jsx';
 import Loading from '../Loading.jsx';
