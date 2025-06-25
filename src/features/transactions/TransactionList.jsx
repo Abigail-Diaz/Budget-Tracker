@@ -125,7 +125,6 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
       setEditingId(null);
       setEditFormData({});
     } catch (err) {
-      console.error("Failed to update transaction:", err);
       alert("Failed to update transaction. Please try again.");
     } finally {
       setIsSaving(false);
