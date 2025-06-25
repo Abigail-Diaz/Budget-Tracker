@@ -37,11 +37,8 @@ function PieChartExpense({ dataObject, label }) {
             outerRadius={100}
             label={({ name }) => name}
           >
-            {data.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={colors[index % colors.length]}
-              />
+            {data.map(({ name }, index) => (
+              <Cell key={name} fill={colors[index % colors.length]} />
             ))}
           </Pie>
           <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />

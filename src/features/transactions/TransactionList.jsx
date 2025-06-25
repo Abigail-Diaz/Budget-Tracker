@@ -22,7 +22,8 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
 
   const pageParamRaw = searchParams.get("page");
   let pageParamNum = parseInt(pageParamRaw, 10);
-  const pageParam = Number.isNaN(pageParamNum) || pageParamNum < 1 ? 1 : pageParamNum;
+  const pageParam =
+    Number.isNaN(pageParamNum) || pageParamNum < 1 ? 1 : pageParamNum;
 
   const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
   const currentPage = Math.min(pageParam, totalPages || 1);
@@ -56,12 +57,14 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
     [setSearchParams, totalPages]
   );
 
-  // Generate consistent unique identifier for each transaction
-  const getUniqueId = useCallback(
-    (txn, index) =>
-      txn.id !== null && txn.id !== undefined ? txn.id : `temp-${index}`,
-    []
-  );
+  const getUniqueId = (txn) => {
+    if (txn.id !== null && txn.id !== undefined) return txn.id;
+
+    const dateStr = txn.Date || txn.date || "";
+    const category = txn.Category || "";
+
+    return `${dateStr}-${category}`;
+  };
 
   // Start editing a transaction, set form data from selected txn
   const handleEditClick = useCallback(
@@ -138,7 +141,13 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
     } finally {
       setIsSaving(false);
     }
-  }, [editingId, editFormData, filteredTransactions, getUniqueId, handleEditExpense]);
+  }, [
+    editingId,
+    editFormData,
+    filteredTransactions,
+    getUniqueId,
+    handleEditExpense,
+  ]);
 
   return (
     <div className={styles.transactionListContainer}>
@@ -231,7 +240,10 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                     >
                       {isSaving ? "Saving..." : "Save"}
                     </button>
-                    <button className={styles.cancelButton} onClick={handleCancel}>
+                    <button
+                      className={styles.cancelButton}
+                      onClick={handleCancel}
+                    >
                       Cancel
                     </button>
                   </div>
