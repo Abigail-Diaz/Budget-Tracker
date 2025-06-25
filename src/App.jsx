@@ -28,7 +28,7 @@ function App() {
   const [isCategoriesError, setIsCategoriesError] = useState({ state: false, errorMessage: '', error: '' });
 
   const baseId = import.meta.env.VITE_BASE_ID;
-  const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`
+  const transactionsUrl = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_TRANSACTIONS}`
   const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${import.meta.env.VITE_TABLE_CATEGORIES}`;
   const token = `Bearer ${import.meta.env.VITE_PAT}`
 
@@ -51,7 +51,7 @@ function App() {
     async function fetchTodos() {
       try {
         setIsTransactionsLoading(true);
-        const resp = await fetch(url, createOptions('GET'))
+        const resp = await fetch(transactionsUrl, createOptions('GET'))
         if (!resp.ok) {
           throw new Error(`HTTP ${resp.status}: ${resp.statusText || 'Unknown error'}`);
         }
@@ -72,7 +72,7 @@ function App() {
       }
     }
     fetchTodos()
-  }, [url, token])
+  }, [transactionsUrl, token])
 
   // Fetch budget categories
   useEffect(() => {
@@ -123,7 +123,7 @@ function App() {
       }
 
       const options = createOptions('POST', [{ fields }]);
-      const resp = await fetch(url, options);
+      const resp = await fetch(transactionsUrl, options);
       const data = await resp.json();
       const saved = data.records[0];
 
@@ -151,7 +151,7 @@ function App() {
       );
 
       const options = createOptions('PATCH', [{ id, fields }]);
-      const resp = await fetch(url, options);
+      const resp = await fetch(transactionsUrl, options);
       if (!resp.ok) throw new Error(`Failed to edit expense: ${resp.statusText}`);
       await resp.json();
     } catch (error) {
