@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Transactions from './pages/Transactions.jsx'
 import Budget from './pages/Budget.jsx'
 import AddExpense from './pages/AddExpense.jsx'
+import NotFound from './pages/NotFound.jsx'
 
 import { format, subMonths, getMonth, getYear } from 'date-fns';
 import { Routes, Route } from 'react-router-dom'
@@ -323,6 +324,7 @@ function App() {
             />
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   )
