@@ -44,7 +44,7 @@ This project uses **Airtable** as its backend database to store transaction data
    - `transactions` table should include:
      - `Date` (Date)
      - `Amount` (Number)
-     - `Category` (Single select or text)
+     - `Category` (Single select)
      - `Description` (Optional text)
    - `Budget_Categories` table should include:
      - `name` (Text)
@@ -55,9 +55,10 @@ This project uses **Airtable** as its backend database to store transaction data
 You can import data using Airtable’s **CSV Import** feature:
 
 - In each table, click the dropdown → "Import Data" → "CSV file"
-- Upload the appropriate CSV file for:
-  - `transactions.csv`
-  - `Budget_Categories.csv`
+- The CSV files are in the /data folder at the project root.
+- Upload the appropriate CSV file on each corresponding table in the Airtable:
+  - `transactions.csv`       (For testing and data visualization)
+  - `Budget_Categories.csv` (Required since budget categories are not added by users)
 
 ### 3. Configure Environment Variables
 
@@ -69,7 +70,6 @@ VITE_BASE_ID=your_airtable_base_id
 VITE_TABLE_TRANSACTIONS=transactions
 VITE_TABLE_CATEGORIES=Budget_Categories
 ```
-VITE_PAT: Create a personal access token at https://airtable.com/account under Developer Hub > Tokens
-
-VITE_BASE_ID: Find this in your Airtable base’s URL (airtable.com/appXXXXXXXXXXXXXX/...)
+- VITE_PAT: Create a personal access token at https://airtable.com/account under Developer Hub > Tokens
+- VITE_BASE_ID: Find this in your Airtable base’s URL (airtable.com/appXXXXXXXXXXXXXX/...)
 
