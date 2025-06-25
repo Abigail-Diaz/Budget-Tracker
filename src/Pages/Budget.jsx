@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import Card from "../Card.jsx";
-import PieChartExpense from "../PieChartExpense.jsx";
-import BarChart from '../BarGraph.jsx';
+import Card from "../shared/Card.jsx";
+import PieChartExpense from "../features/budget/PieChartExpense.jsx";
+import BarChart from '../features/budget/BarGraph.jsx';
 import styles from "./Budget.module.css";
-import BudgetProgressBars from '../BudgetProgressBars.jsx';
-import Loading from '../Loading.jsx';
-import Error from '../Error.jsx';
+import BudgetProgressBars from '../features/budget/BudgetProgressBars.jsx';
+import Loading from '../shared/Loading.jsx';
+import Error from '../shared/Error.jsx';
 
 import { format } from 'date-fns';
 

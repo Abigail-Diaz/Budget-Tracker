@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import './App.css'
 
-import Header from './Header.jsx'
-import Navigation from './Navigation.jsx'
-import Dashboard from './Pages/Dashboard.jsx'
-import Transactions from './Pages/Transactions.jsx'
-import Budget from './Pages/Budget.jsx'
-import AddExpense from './Pages/AddExpense.jsx'
+import Header from './layout/Header.jsx'
+import Navigation from './layout/Navigation.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import Transactions from './pages/Transactions.jsx'
+import Budget from './pages/Budget.jsx'
+import AddExpense from './pages/AddExpense.jsx'
 
 import { format, subMonths, getMonth, getYear } from 'date-fns';
 import { Routes, Route } from 'react-router-dom'

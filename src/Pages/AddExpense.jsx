@@ -1,9 +1,9 @@
 // Page to allow user to add a new expense to the transaction list
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
-import AddExpenseForm from "../AddExpenseForm";
-import Loading from "../Loading";
-import Error from "../Error";
+import AddExpenseForm from "../features/transactions/AddExpenseForm";
+import Loading from "../shared/Loading";
+import Error from "../shared/Error";
 
 function AddExpense({ handleAddExpense, categoryNames, isLoading, isError }) {
     const navigate = useNavigate();

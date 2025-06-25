@@ -10,8 +10,6 @@ import styles from "./BudgetProgressBars.module.css";
  * - actualExpenses: [{ name: string, amount: number }] — actual spending data
  * - budgetCategories: [{ name: string, amount: number }] — allocated budget categories
  * - heading: string — customizable heading label
- * - buttonPath: string — URL path to navigate when the button is clicked
- * - buttonLabel: string (children) — label for the button
  */
 function BudgetProgressBars({
   actualExpenses = [],

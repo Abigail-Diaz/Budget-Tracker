@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { parseISO } from "date-fns";
 import styles from "./TransactionList.module.css";
-import Button from "./Button.jsx";
+import Button from "../transactions/Button.jsx";
 
 const ITEMS_PER_PAGE = 20;
 

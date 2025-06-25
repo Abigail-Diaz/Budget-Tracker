@@ -1,10 +1,10 @@
-import MonthlyExpenseGraph from "../MonthlyExpenseGraph.jsx";
-import Card from "../Card.jsx";
-import RecentExpensesList from "../RecentExpensesList.jsx";
-import Footer from "../Footer.jsx";
-import Loading from "../Loading.jsx";
+import MonthlyExpenseGraph from "../features/dashboard/MonthlyExpenseGraph.jsx";
+import Card from "../shared/Card.jsx";
+import RecentExpensesList from "../features/dashboard/RecentExpensesList.jsx";
+import Footer from "../layout/Footer.jsx";
+import Loading from "../shared/Loading.jsx";
 import styles from "./Dashboard.module.css";
-import Error from "../Error.jsx";
+import Error from "../shared/Error.jsx";
 
 import { format } from 'date-fns';
 

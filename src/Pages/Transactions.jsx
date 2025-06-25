@@ -1,7 +1,7 @@
 
-import TransactionList from '../TransactionList.jsx';
-import Loading from '../Loading.jsx';
-import Error from '../Error.jsx';
+import TransactionList from '../features/dashboard/TransactionList.jsx';
+import Loading from '../shared/Loading.jsx';
+import Error from '../shared/Error.jsx';
 
 function Transactions({ transactions, handleEditExpense, categoryNames, isLoading, isError }) {
 
