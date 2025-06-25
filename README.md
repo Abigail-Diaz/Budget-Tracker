@@ -25,3 +25,51 @@ Start the Vite development server:
 `npm run dev`
 This will provide a local URL.
 (usually http://localhost:5173/)
+
+## Connecting to Airtable
+
+This project uses **Airtable** as its backend database to store transaction data and budget categories.
+
+### 1. Airtable Setup
+
+1. **Create an Airtable base**  
+   Go to [https://airtable.com](https://airtable.com) and create a new base (or use an existing one).
+
+2. **Create Two Tables**  
+   Your base should have two tables:
+   - `transactions`: for storing individual transaction records
+   - `Budget_Categories`: for storing budget categories and limits
+
+3. **Add Fields**  
+   - `transactions` table should include:
+     - `Date` (Date)
+     - `Amount` (Number)
+     - `Category` (Single select or text)
+     - `Description` (Optional text)
+   - `Budget_Categories` table should include:
+     - `name` (Text)
+     - `amount` (Number)
+
+### 2. Import Data from CSV
+
+You can import data using Airtable’s **CSV Import** feature:
+
+- In each table, click the dropdown → "Import Data" → "CSV file"
+- Upload the appropriate CSV file for:
+  - `transactions.csv`
+  - `Budget_Categories.csv`
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the root of your project based on the provided example:
+
+```env
+VITE_PAT=your_airtable_personal_access_token
+VITE_BASE_ID=your_airtable_base_id
+VITE_TABLE_TRANSACTIONS=transactions
+VITE_TABLE_CATEGORIES=Budget_Categories
+```
+VITE_PAT: Create a personal access token at https://airtable.com/account under Developer Hub > Tokens
+
+VITE_BASE_ID: Find this in your Airtable base’s URL (airtable.com/appXXXXXXXXXXXXXX/...)
+
