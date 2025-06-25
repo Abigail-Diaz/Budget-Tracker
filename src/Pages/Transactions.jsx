@@ -1,5 +1,5 @@
 
-import TransactionList from '../features/dashboard/TransactionList.jsx';
+import TransactionList from '../features/transactions/TransactionList.jsx';
 import Loading from '../shared/Loading.jsx';
 import Error from '../shared/Error.jsx';
 

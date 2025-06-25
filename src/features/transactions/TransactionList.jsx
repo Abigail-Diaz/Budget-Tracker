@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { parseISO } from "date-fns";
 import styles from "./TransactionList.module.css";
-import Button from "../transactions/Button.jsx";
+import Button from "./Button.jsx";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -48,44 +48,53 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
   }, [transactions, currentPage]);
 
   // Change the page in the URL query param
-  const goToPage = (page) => {
-    const validPage = Math.max(1, Math.min(page, totalPages));
-    setSearchParams({ page: validPage.toString() });
-  };
+  const goToPage = useCallback(
+    (page) => {
+      const validPage = Math.max(1, Math.min(page, totalPages));
+      setSearchParams({ page: validPage.toString() });
+    },
+    [setSearchParams, totalPages]
+  );
 
   // Generate consistent unique identifier for each transaction
-  const getUniqueId = (txn, index) =>
-    txn.id !== null && txn.id !== undefined ? txn.id : `temp-${index}`;
+  const getUniqueId = useCallback(
+    (txn, index) =>
+      txn.id !== null && txn.id !== undefined ? txn.id : `temp-${index}`,
+    []
+  );
 
   // Start editing a transaction, set form data from selected txn
-  const handleEditClick = (txn, index) => {
-    const uniqueId = getUniqueId(txn, index);
-    setEditingId(uniqueId);
-    setEditFormData({
-      Date: txn.Date,
-      Amount:
-        txn.Amount !== null && txn.Amount !== undefined
-          ? txn.Amount.toString()
-          : "",
-      Category: txn.Category || "",
-      Description: txn.Description || "",
-    });
-  };
+  const handleEditClick = useCallback(
+    (txn, index) => {
+      const uniqueId = getUniqueId(txn, index);
+      setEditingId(uniqueId);
+      setEditFormData({
+        Date: txn.Date,
+        Amount:
+          txn.Amount !== null && txn.Amount !== undefined
+            ? txn.Amount.toString()
+            : "",
+        Category: txn.Category || "",
+        Description: txn.Description || "",
+      });
+    },
+    [getUniqueId]
+  );
 
   // Cancel editing mode and clear form data
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setEditingId(null);
     setEditFormData({});
-  };
+  }, []);
 
   // Update form fields during editing
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setEditFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
   // Submit edited transaction
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!editingId) return;
 
     setIsSaving(true);
@@ -110,7 +119,11 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
         return getUniqueId(txn, idx) === editingId;
       });
 
-      if (!originalTransaction || originalTransaction.id === null || originalTransaction.id === undefined) {
+      if (
+        !originalTransaction ||
+        originalTransaction.id === null ||
+        originalTransaction.id === undefined
+      ) {
         throw new Error("Cannot find transaction ID for editing");
       }
 
@@ -125,7 +138,7 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [editingId, editFormData, filteredTransactions, getUniqueId, handleEditExpense]);
 
   return (
     <div className={styles.transactionListContainer}>
@@ -218,10 +231,7 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                     >
                       {isSaving ? "Saving..." : "Save"}
                     </button>
-                    <button
-                      className={styles.cancelButton}
-                      onClick={handleCancel}
-                    >
+                    <button className={styles.cancelButton} onClick={handleCancel}>
                       Cancel
                     </button>
                   </div>
