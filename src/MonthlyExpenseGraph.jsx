@@ -73,19 +73,20 @@ function MonthlyExpenseGraph({ transactions }) {
 
     const groupedData = enforcedSelection.map(({ value }) => {
       const { month, year } = value;
-      const dailyTotals = {};
 
-      transactions.forEach((txn) => {
+      const dailyTotals = transactions.reduce((acc, txn) => {
         const dateStr = txn.Date || txn.date;
         const amount = Number(txn.Amount || txn.amount || 0);
-        if (amount >= 0) return; // only expenses
+        if (amount >= 0) return acc; // only expenses
 
         const dateObj = new Date(dateStr);
         if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
           const day = dateObj.getDate();
-          dailyTotals[day] = (dailyTotals[day] || 0) + amount;
+          acc[day] = (acc[day] || 0) + amount;
         }
-      });
+        return acc;
+      }, {});
+
 
       let runningTotal = 0;
       const days = Array.from({ length: 31 }, (_, i) => i + 1);
