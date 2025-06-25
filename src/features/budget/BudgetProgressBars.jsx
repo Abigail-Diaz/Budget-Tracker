@@ -7,8 +7,8 @@ import styles from "./BudgetProgressBars.module.css";
  * that visually represent the ratio of actual spending to allocated budget.
  *
  * Props:
- * - actualExpenses: [{ name: string, amount: number }] — actual spending data
- * - budgetCategories: [{ name: string, amount: number }] — allocated budget categories
+ * - actualExpenses: [{ name: string, amount: number }]
+ * - budgetCategories: [{ name: string, amount: number }]
  * - heading: string — customizable heading label
  */
 function BudgetProgressBars({
@@ -22,6 +22,13 @@ function BudgetProgressBars({
     return acc;
   }, {});
 
+  // Helper to generate a unique key using name and current date
+  const generateKey = (name, index) => {
+    const safeName = name || "unknown"; // fallback if name is missing or falsy
+    const todayDate = new Date().toISOString().slice(0, 10);
+    return `${safeName}-${todayDate}-${index}`; // add index for guaranteed uniqueness
+  };
+
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.heading}>{heading}</h2>
@@ -29,13 +36,13 @@ function BudgetProgressBars({
       {/* Loop through each budget category except "Income" */}
       {budgetCategories
         .filter((item) => item.name !== "Income")
-        .map(({ name, amount: budgetAmount }) => {
+        .map(({ name, amount: budgetAmount }, index) => {
           const spent = expenseMap[name] || 0; // amount spent in this category
           const percent = (spent / budgetAmount) * 100; // calculate percent used
           const isOverBudget = spent > budgetAmount; // flag if over budget
 
           return (
-            <div key={name} className={styles.category}>
+            <div key={generateKey(name, index)} className={styles.category}>
               <div className={styles.labelRow}>
                 <span>{name}</span>
                 <span>
