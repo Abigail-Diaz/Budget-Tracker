@@ -49,60 +49,51 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
   }, [transactions, currentPage]);
 
   // Change the page in the URL query param
-  const goToPage = useCallback(
-    (page) => {
-      const validPage = Math.max(1, Math.min(page, totalPages));
-      setSearchParams({ page: validPage.toString() });
-    },
-    [setSearchParams, totalPages]
-  );
-
-  const getUniqueId = (txn) => {
-    if (txn.id !== null && txn.id !== undefined) return txn.id;
-
-    const dateStr = txn.Date || txn.date || "";
-    const category = txn.Category || "";
-
-    return `${dateStr}-${category}`;
+  const goToPage = (page) => {
+    const validPage = Math.max(1, Math.min(page, totalPages));
+    setSearchParams({ page: validPage.toString() });
   };
 
-  // Start editing a transaction, set form data from selected txn
-  const handleEditClick = useCallback(
-    (txn, index) => {
-      const uniqueId = getUniqueId(txn, index);
-      setEditingId(uniqueId);
-      setEditFormData({
-        Date: txn.Date,
-        Amount:
-          txn.Amount !== null && txn.Amount !== undefined
-            ? txn.Amount.toString()
-            : "",
-        Category: txn.Category || "",
-        Description: txn.Description || "",
-      });
-    },
-    [getUniqueId]
-  );
+  // Generate consistent unique identifier for each transaction
+  const getUniqueId = useCallback((txn) => {
+    if (txn.id !== null && txn.id !== undefined) return txn.id;
+    const dateStr = txn.Date || txn.date || "";
+    return `${dateStr}-${txn.Category || ""}`;
+  }, []);
+
+  // Start editing a transaction
+  const handleEditClick = (txn) => {
+    const uniqueId = getUniqueId(txn);
+    setEditingId(uniqueId);
+    setEditFormData({
+      Date: txn.Date,
+      Amount:
+        txn.Amount !== null && txn.Amount !== undefined
+          ? txn.Amount.toString()
+          : "",
+      Category: txn.Category || "",
+      Description: txn.Description || "",
+    });
+  };
 
   // Cancel editing mode and clear form data
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     setEditingId(null);
     setEditFormData({});
-  }, []);
+  };
 
   // Update form fields during editing
-  const handleChange = useCallback((e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setEditFormData((prev) => ({ ...prev, [name]: value }));
-  }, []);
+  };
 
   // Submit edited transaction
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     if (!editingId) return;
 
     setIsSaving(true);
     try {
-      // Validate and parse amount input
       const amountNum = parseFloat(editFormData.Amount);
       if (Number.isNaN(amountNum)) {
         alert("Please enter a valid number for Amount");
@@ -117,9 +108,8 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
         Description: editFormData.Description,
       };
 
-      // Find the original transaction to get its id for update
-      const originalTransaction = filteredTransactions.find((txn, idx) => {
-        return getUniqueId(txn, idx) === editingId;
+      const originalTransaction = filteredTransactions.find((txn) => {
+        return getUniqueId(txn) === editingId;
       });
 
       if (
@@ -130,7 +120,6 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
         throw new Error("Cannot find transaction ID for editing");
       }
 
-      // Call parent edit handler
       await handleEditExpense({ id: originalTransaction.id, fields });
 
       setEditingId(null);
@@ -141,13 +130,7 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
     } finally {
       setIsSaving(false);
     }
-  }, [
-    editingId,
-    editFormData,
-    filteredTransactions,
-    getUniqueId,
-    handleEditExpense,
-  ]);
+  };
 
   return (
     <div className={styles.transactionListContainer}>
@@ -169,8 +152,8 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
           No transactions to display.
         </p>
       ) : (
-        filteredTransactions.map((txn, index) => {
-          const uniqueId = getUniqueId(txn, index);
+        filteredTransactions.map((txn) => {
+          const uniqueId = getUniqueId(txn);
           const isEditing = editingId === uniqueId;
           const amount = Number(
             txn.Amount !== null && txn.Amount !== undefined ? txn.Amount : 0
@@ -186,19 +169,24 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
             <div
               key={uniqueId}
               className={styles.transactionItem}
-              onClick={() => !editingId && handleEditClick(txn, index)}
+              onClick={() => !editingId && handleEditClick(txn)}
             >
               {isEditing ? (
                 <>
                   <div className={styles.editForm}>
+                    <label htmlFor="date">Date</label>
                     <input
+                      id="date"
                       type="date"
                       name="Date"
                       value={editFormData.Date}
                       onChange={handleChange}
                       className={styles.formInput}
                     />
+
+                    <label htmlFor="category">Category</label>
                     <select
+                      id="category"
                       name="Category"
                       value={editFormData.Category}
                       onChange={handleChange}
@@ -206,13 +194,16 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                     >
                       <option value="">Select Category</option>
                       {categoryNames &&
-                        categoryNames.map((category, idx) => (
-                          <option key={idx} value={category}>
+                        categoryNames.map((category) => (
+                          <option key={category} value={category}>
                             {category}
                           </option>
                         ))}
                     </select>
+
+                    <label htmlFor="description">Description</label>
                     <input
+                      id="description"
                       type="text"
                       name="Description"
                       value={editFormData.Description}
@@ -220,7 +211,10 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                       className={styles.formInput}
                       placeholder="Description"
                     />
+
+                    <label htmlFor="amount">Amount</label>
                     <input
+                      id="amount"
                       type="number"
                       name="Amount"
                       value={editFormData.Amount}
