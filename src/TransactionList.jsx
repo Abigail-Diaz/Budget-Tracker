@@ -15,88 +15,106 @@ const ITEMS_PER_PAGE = 20;
  */
 function TransactionList({ transactions, handleEditExpense, categoryNames }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [editingId, setEditingId] = useState(null); // ID of the currently edited transaction
-  const [editFormData, setEditFormData] = useState({}); // Form state for current edit
-  const [isSaving, setIsSaving] = useState(false); // Saving state
+  const [editingId, setEditingId] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
 
-  const pageParam = parseInt(searchParams.get("page")) || 1;
-  const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
-  const currentPage = Math.max(1, Math.min(pageParam, totalPages || 1));
+  const pageParamRaw = searchParams.get("page");
+  let pageParamNum = parseInt(pageParamRaw, 10);
+  const pageParam = Number.isNaN(pageParamNum) || pageParamNum < 1 ? 1 : pageParamNum;
 
-  // Update filtered transactions whenever transactions change
+  const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
+  const currentPage = Math.min(pageParam, totalPages || 1);
+
+  // Update filtered transactions whenever transactions or currentPage change
   useEffect(() => {
     if (!transactions || transactions.length === 0) {
       setFilteredTransactions([]);
       return;
     }
 
+    // Sort transactions descending by date
     const sorted = [...transactions].sort((a, b) => {
       const dateA = a.Date ? parseISO(a.Date) : new Date(a.date);
       const dateB = b.Date ? parseISO(b.Date) : new Date(b.date);
       return dateB - dateA;
     });
 
+    // Slice transactions for current page
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
     setFilteredTransactions(sorted.slice(start, end));
   }, [transactions, currentPage]);
 
-  // Change the page in the URL
+  // Change the page in the URL query param
   const goToPage = (page) => {
     const validPage = Math.max(1, Math.min(page, totalPages));
-    setSearchParams({ page: validPage });
+    setSearchParams({ page: validPage.toString() });
   };
 
-  // Start editing a transaction
+  // Generate consistent unique identifier for each transaction
+  const getUniqueId = (txn, index) =>
+    txn.id !== null && txn.id !== undefined ? txn.id : `temp-${index}`;
+
+  // Start editing a transaction, set form data from selected txn
   const handleEditClick = (txn, index) => {
-    // Use a combination of id and index to ensure uniqueness
-    const uniqueId = txn.id || `temp-${index}`;
+    const uniqueId = getUniqueId(txn, index);
     setEditingId(uniqueId);
     setEditFormData({
       Date: txn.Date,
-      Amount: txn.Amount,
-      Category: txn.Category,
+      Amount:
+        txn.Amount !== null && txn.Amount !== undefined
+          ? txn.Amount.toString()
+          : "",
+      Category: txn.Category || "",
       Description: txn.Description || "",
     });
   };
 
-  // Cancel editing
+  // Cancel editing mode and clear form data
   const handleCancel = () => {
     setEditingId(null);
     setEditFormData({});
   };
 
-  // Update form fields
+  // Update form fields during editing
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit edit
+  // Submit edited transaction
   const handleSave = async () => {
     if (!editingId) return;
 
     setIsSaving(true);
     try {
+      // Validate and parse amount input
+      const amountNum = parseFloat(editFormData.Amount);
+      if (Number.isNaN(amountNum)) {
+        alert("Please enter a valid number for Amount");
+        setIsSaving(false);
+        return;
+      }
+
       const fields = {
         Date: editFormData.Date,
-        Amount: parseFloat(editFormData.Amount),
+        Amount: amountNum,
         Category: editFormData.Category,
         Description: editFormData.Description,
       };
 
-      // Find the original transaction to get its ID
-      const originalTransaction = filteredTransactions.find((txn) => {
-        const uniqueId = txn.id || `temp-${filteredTransactions.indexOf(txn)}`;
-        return uniqueId === editingId;
+      // Find the original transaction to get its id for update
+      const originalTransaction = filteredTransactions.find((txn, idx) => {
+        return getUniqueId(txn, idx) === editingId;
       });
 
-      if (!originalTransaction || !originalTransaction.id) {
+      if (!originalTransaction || originalTransaction.id === null || originalTransaction.id === undefined) {
         throw new Error("Cannot find transaction ID for editing");
       }
 
-      // Call the parent's edit handler - parent handles optimistic update
+      // Call parent edit handler
       await handleEditExpense({ id: originalTransaction.id, fields });
 
       setEditingId(null);
@@ -123,16 +141,18 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
         </div>
       )}
 
+      {/* Show message if no transactions */}
       {filteredTransactions.length === 0 ? (
         <p style={{ color: "#7a739c", fontStyle: "italic" }}>
           No transactions to display.
         </p>
       ) : (
         filteredTransactions.map((txn, index) => {
-          // Create consistent unique identifier
-          const uniqueId = txn.id || `temp-${index}`;
+          const uniqueId = getUniqueId(txn, index);
           const isEditing = editingId === uniqueId;
-          const amount = Number(txn.Amount || 0);
+          const amount = Number(
+            txn.Amount !== null && txn.Amount !== undefined ? txn.Amount : 0
+          );
           const dateObj = txn.Date ? parseISO(txn.Date) : new Date();
           const formattedDate = dateObj.toLocaleDateString(undefined, {
             year: "numeric",
@@ -189,6 +209,7 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                     />
                   </div>
 
+                  {/* Save and Cancel buttons */}
                   <div className={styles.buttonRow}>
                     <button
                       className={styles.saveButton}
