@@ -193,8 +193,8 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                     >
                       <option value="">Select Category</option>
                       {categoryNames &&
-                        categoryNames.map((category) => (
-                          <option key={category} value={category}>
+                        categoryNames.map((category, index) => (
+                          <option key={`${category}-${index}`} value={category}>
                             {category}
                           </option>
                         ))}
