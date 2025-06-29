@@ -13,7 +13,6 @@ import { format, subMonths, getMonth, getYear } from 'date-fns';
 import { Routes, Route } from 'react-router-dom'
 
 function App() {
-  const [header, setHeader] = useState('Expense Tracker')
   const [transactions, setTransactions] = useState([])
   const [budgetCategories, setBudgetCategories] = useState([]);
   const [incomeTotal, setIncomeTotal] = useState(0);
@@ -272,7 +271,7 @@ function App() {
 
   return (
     <>
-      <Header header={header} />
+      <Header header={"Expense Tracker"} />
       <Navigation />
       <Routes>
         <Route
