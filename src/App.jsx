@@ -3,11 +3,11 @@ import './App.css'
 
 import Header from './layout/Header.jsx'
 import Navigation from './layout/Navigation.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import Transactions from './pages/Transactions.jsx'
-import Budget from './pages/Budget.jsx'
-import AddExpense from './pages/AddExpense.jsx'
-import NotFound from './pages/NotFound.jsx'
+import Dashboard from './temp-folder/Dashboard.jsx'
+import Transactions from './temp-folder/Transactions.js'
+import Budget from './temp-folder/Budget.jsx'
+import AddExpense from './temp-folder/AddExpense.jsx'
+import NotFound from './temp-folder/NotFound.jsx'
 
 import { format, subMonths, getMonth, getYear } from 'date-fns';
 import { Routes, Route } from 'react-router-dom'
