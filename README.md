@@ -44,10 +44,10 @@ This project uses **Airtable** as its backend database to store transaction data
    - `transactions` table should include:
      - `Date` (Date)
      - `Amount` (Number)
-     - `Category` (Single select)
-     - `Description` (Optional text)
+     - `Category` (Long Text)
+     - `Description` (Long text)
    - `Budget_Categories` table should include:
-     - `name` (Text)
+     - `name` (Single Line Text)
      - `amount` (Number)
 
 ### 2. Import Data from CSV
