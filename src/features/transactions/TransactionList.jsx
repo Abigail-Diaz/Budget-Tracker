@@ -125,7 +125,6 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
       setEditingId(null);
       setEditFormData({});
     } catch (err) {
-      console.error("Failed to update transaction:", err);
       alert("Failed to update transaction. Please try again.");
     } finally {
       setIsSaving(false);
@@ -194,8 +193,8 @@ function TransactionList({ transactions, handleEditExpense, categoryNames }) {
                     >
                       <option value="">Select Category</option>
                       {categoryNames &&
-                        categoryNames.map((category) => (
-                          <option key={category} value={category}>
+                        categoryNames.map((category, index) => (
+                          <option key={`${category}-${index}`} value={category}>
                             {category}
                           </option>
                         ))}

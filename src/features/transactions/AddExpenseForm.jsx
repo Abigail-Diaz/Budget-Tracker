@@ -36,8 +36,6 @@ function AddExpenseForm({ handleAddExpense, categoryNames}) {
     Description: ''
   });
 
-  console.log('formData', formData);
-
   // Local UI state for save button and messages
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
