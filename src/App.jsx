@@ -32,6 +32,8 @@ function App() {
   const categoriesUrl = `https://api.airtable.com/v0/${baseId}/${import.meta.env.VITE_TABLE_CATEGORIES}`;
   const token = `Bearer ${import.meta.env.VITE_PAT}`
 
+  const apiKey = import.meta.env.VITE_PAT;
+
   function createOptions(method, records) {
     const opts = {
       method,
