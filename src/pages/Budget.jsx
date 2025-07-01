@@ -40,9 +40,6 @@ function Budget({ incomeData, categoryData, budgetCategories, isLoading, isError
         setSelectedMonth(month);
     };
 
-    console.log('incomeData:', incomeData);
-    console.log('currentIncomeData:', currentIncomeData);
-
     // Show loading spinner while data is being fetched
     if (isLoading || !currentIncomeData) return <Loading message="Loading budget data..." />;
 
